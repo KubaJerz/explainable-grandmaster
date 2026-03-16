@@ -1,0 +1,99 @@
+import argparse
+import json
+import os
+import torch
+
+from models.base import BaseModel
+from self_play import generate_games
+from train import train
+
+
+def main():
+    parser = argparse.ArgumentParser(description="AlphaZero iteration pipeline")
+    parser.add_argument("--iterations", type=int, default=10)
+    parser.add_argument("--games-per-iter", type=int, default=25)
+    parser.add_argument("--mcts-sims", type=int, default=50)
+    parser.add_argument("--epochs", type=int, default=5)
+    parser.add_argument("--batch-size", type=int, default=64)
+    parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--weight-decay", type=float, default=1e-4)
+    parser.add_argument("--num-res-blocks", type=int, default=5)
+    parser.add_argument("--c-puct", type=float, default=1.0)
+    parser.add_argument("--results-dir", type=str, default="results/")
+    parser.add_argument("--resume", type=str, default=None, help="Path to checkpoint to resume from")
+    args = parser.parse_args()
+
+    os.makedirs(args.results_dir, exist_ok=True)
+
+    # Initialize or load model
+    model = BaseModel(input_channels=119, num_res_blocks=args.num_res_blocks)
+    start_iter = 0
+    training_log = []
+
+    if args.resume:
+        checkpoint = torch.load(args.resume, weights_only=False)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        start_iter = checkpoint.get("iteration", 0) + 1
+        log_path = os.path.join(args.results_dir, "training_log.json")
+        if os.path.exists(log_path):
+            with open(log_path) as f:
+                training_log = json.load(f)
+        print(f"Resumed from {args.resume} (starting at iteration {start_iter})")
+
+    print(f"Config: {vars(args)}")
+    print(f"Model params: {sum(p.numel() for p in model.parameters()):,}")
+
+    for iteration in range(start_iter, args.iterations):
+        print(f"\n{'='*60}")
+        print(f"Iteration {iteration}/{args.iterations - 1}")
+        print(f"{'='*60}")
+
+        # self play
+        print("Self-play phase:")
+        model.eval()
+        samples, sp_stats = generate_games(
+            model,
+            num_games=args.games_per_iter,
+            mcts_sims=args.mcts_sims,
+            c_puct=args.c_puct,
+        )
+        print(f"  Collected {sp_stats['total_samples']} samples (avg game length: {sp_stats['avg_game_length']:.1f})")
+
+        # train
+        print("Training phase:")
+        epoch_losses = train(
+            model,
+            samples,
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+            lr=args.lr,
+            weight_decay=args.weight_decay,
+        )
+
+        # checkpoint
+        ckpt_path = os.path.join(args.results_dir, f"model_iter_{iteration}.pt")
+        torch.save({
+            "iteration": iteration,
+            "model_state_dict": model.state_dict(),
+            "args": vars(args),
+        }, ckpt_path)
+        print(f"Saved checkpoint: {ckpt_path}")
+
+        # log stats
+        iter_stats = {
+            "iteration": iteration,
+            "self_play": sp_stats,
+            "training": epoch_losses,
+            "final_loss": epoch_losses[-1]["total"],
+        }
+        training_log.append(iter_stats)
+
+        log_path = os.path.join(args.results_dir, "training_log.json")
+        with open(log_path, "w") as f:
+            json.dump(training_log, f, indent=2)
+
+    print(f"\nDone. Results saved in {args.results_dir}/")
+
+
+if __name__ == "__main__":
+    main()
