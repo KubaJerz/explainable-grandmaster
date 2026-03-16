@@ -9,15 +9,14 @@ class MCTSNode:
         self.state = state
         self.prior_probs = torch.zeros(policy_len)
         self.W = torch.zeros(policy_len)
-        self.visit_counts = torch.zeros(policy_len)
+        self.visit_counts = torch.ones(policy_len)
         self.children = {} 
         self.value_sum = 0.0 
         
     @property
     def Q(self):
         # Calculate Q dynamically
-        visits_safe = torch.clamp(self.visit_counts, min=1.0)
-        return self.W / visits_safe
+        return self.W / self.visit_counts
 
 class MCTS:
     def __init__(self, model, c_puct=1.0, tau=1.0):
@@ -74,7 +73,7 @@ class MCTS:
             # Evaluate terminal states using game rules rather than the neural network
             return terminal_sate_evaluation(node.state)
             
-        action = self.select_action_PUCT(node)
+        action = self.select_action_UCT(node)
         
         if action in node.children:
             # Node is already expanded: recurse deeper into the tree
