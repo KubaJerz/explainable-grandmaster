@@ -96,10 +96,13 @@ class MCTS:
             node.children[action] = child_node
 
         # --- BACKPROPAGATION ---
-        node.W[action] += sim_value
+        # Negate: child's value is from the child's perspective (opponent),
+        # so flip sign to get value from this node's (current player's) perspective.
+        negated_value = -sim_value
+        node.W[action] += negated_value
         node.visit_counts[action] += 1
 
-        return sim_value
+        return negated_value
 
     def get_policy(self):
         """Extract the MCTS policy from root visit counts, respecting temperature."""
