@@ -7,7 +7,7 @@ from mcts.mcts import MCTS
 MAX_MOVES = 512
 
 
-def play_game(model, mcts_sims=800, c_puct=1.0, tau_threshold=30):
+def play_game(model, mcts_sims=800, c_puct=1.0, tau_threshold=30, device="cpu"):
     """Play a single self-play game using MCTS, returning training data.
 
     Runs till end of game or max moves.
@@ -30,7 +30,7 @@ def play_game(model, mcts_sims=800, c_puct=1.0, tau_threshold=30):
         tau = 1.0 if move_num < tau_threshold else 0.01
 
         #run the mcts
-        mcts = MCTS(model, c_puct=c_puct, tau=tau)
+        mcts = MCTS(model, c_puct=c_puct, tau=tau, device=device)
         action = mcts.mcts_search(game_state, mcts_sims)
         mcts_policy = mcts.get_policy()
 
@@ -67,7 +67,7 @@ def play_game(model, mcts_sims=800, c_puct=1.0, tau_threshold=30):
     return training_data
 
 
-def generate_games(model, num_games, mcts_sims=800, c_puct=1.0, tau_threshold=30):
+def generate_games(model, num_games, mcts_sims=800, c_puct=1.0, tau_threshold=30, device="cpu"):
     """Generate multiple self-play games and collect all training samples.
 
     Returns:
@@ -79,7 +79,7 @@ def generate_games(model, num_games, mcts_sims=800, c_puct=1.0, tau_threshold=30
 
     for i in range(num_games):
         print(f"  Self-play game {i+1}/{num_games}", end="", flush=True)
-        samples = play_game(model, mcts_sims=mcts_sims, c_puct=c_puct, tau_threshold=tau_threshold)
+        samples = play_game(model, mcts_sims=mcts_sims, c_puct=c_puct, tau_threshold=tau_threshold, device=device)
         game_lengths.append(len(samples))
         all_samples.extend(samples)
         print(f" — {len(samples)} moves")

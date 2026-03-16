@@ -31,21 +31,22 @@ class MCTS:
     Initialize at the node from which to run the search, then call mcts_search
     to perform the search and get the best action.
     """
-    def __init__(self, model, c_puct=1.0, tau=1.0):
+    def __init__(self, model, c_puct=1.0, tau=1.0, device="cpu"):
         self.model = model
         self.c_puct = c_puct
         self.tau = tau
+        self.device = device
         self.root = None
 
     def mcts_search(self, game_state, num_simulations):
         # Encode state and get initial policy/value from the network
-        tensor = game_state.encode().unsqueeze(0)
+        tensor = game_state.encode().unsqueeze(0).to(self.device)
         self.model.eval()
         with torch.no_grad():
             nn_priors, value = self.model(tensor)
 
         self.root = MCTSNode(game_state)
-        self.root.set_prior_probs(torch.softmax(nn_priors.squeeze(), dim=0))
+        self.root.set_prior_probs(torch.softmax(nn_priors.squeeze(), dim=0).cpu())
         self.root.value_sum = value.item()
 
         for _ in range(num_simulations):
@@ -69,11 +70,11 @@ class MCTS:
         new_state = parent_node.game_state.apply_move(move)
         leaf_node = MCTSNode(new_state, len(parent_node.prior_probs))
 
-        tensor = new_state.encode().unsqueeze(0)
+        tensor = new_state.encode().unsqueeze(0).to(self.device)
         self.model.eval()
         with torch.no_grad():
             nn_priors, value = self.model(tensor)
-            leaf_node.set_prior_probs(torch.softmax(nn_priors.squeeze(), dim=0))
+            leaf_node.set_prior_probs(torch.softmax(nn_priors.squeeze(), dim=0).cpu())
             leaf_node.value_sum = value.item()
 
         return leaf_node, leaf_node.value_sum

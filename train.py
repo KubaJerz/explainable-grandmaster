@@ -31,7 +31,7 @@ they also not have L2 regularizationin the paper we do viz weight decay in the o
 """
 
 
-def train(model, samples, epochs=5, batch_size=64, lr=1e-3, weight_decay=1e-4):
+def train(model, samples, epochs=5, batch_size=64, lr=1e-3, weight_decay=1e-4, device="cpu"):
     """Train the model on self-play data using AlphaZero loss.
 
     Loss = MSE(value) + CE(policy) + L2 regularization (we do via weight decay in loss func)
@@ -63,6 +63,9 @@ def train(model, samples, epochs=5, batch_size=64, lr=1e-3, weight_decay=1e-4):
         num_batches = 0
 
         for states, policy_targets, value_targets in dataloader:
+            states = states.to(device)
+            policy_targets = policy_targets.to(device)
+            value_targets = value_targets.to(device)
             policy_logits, value_preds = model(states)
             value_preds = value_preds.squeeze(-1)
 

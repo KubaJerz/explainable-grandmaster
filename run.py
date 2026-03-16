@@ -27,8 +27,17 @@ def main():
 
     os.makedirs(args.results_dir, exist_ok=True)
 
+    # Device setup
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    elif torch.backends.mps.is_available():
+        device = torch.device("mps")
+    else:
+        device = torch.device("cpu")
+
     # Initialize or load model
     model = BaseModel(input_channels=119, num_res_blocks=args.num_res_blocks)
+    model.to(device)
     start_iter = 0
     training_log = []
     replay_buffer = deque(maxlen=args.buffer_size)
@@ -44,6 +53,7 @@ def main():
                 training_log = json.load(f)
         print(f"Resumed from {args.resume} (starting at iteration {start_iter}, buffer: {len(replay_buffer)} samples)")
 
+    print(f"Device: {device}")
     print(f"Config: {vars(args)}")
     print(f"Model params: {sum(p.numel() for p in model.parameters()):,}")
 
@@ -60,6 +70,7 @@ def main():
             num_games=args.games_per_iter,
             mcts_sims=args.mcts_sims,
             c_puct=args.c_puct,
+            device=device,
         )
         print(f"  Collected {sp_stats['total_samples']} samples (avg game length: {sp_stats['avg_game_length']:.1f})")
 
@@ -76,6 +87,7 @@ def main():
             batch_size=args.batch_size,
             lr=args.lr,
             weight_decay=args.weight_decay,
+            device=device,
         )
 
         # checkpoint
