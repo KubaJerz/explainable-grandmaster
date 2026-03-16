@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+from collections import deque
 import torch
 
 from models.base import BaseModel
@@ -20,6 +21,7 @@ def main():
     parser.add_argument("--num-res-blocks", type=int, default=5)
     parser.add_argument("--c-puct", type=float, default=1.0)
     parser.add_argument("--results-dir", type=str, default="results/")
+    parser.add_argument("--buffer-size", type=int, default=50000, help="Replay buffer capacity (FIFO)")
     parser.add_argument("--resume", type=str, default=None, help="Path to checkpoint to resume from")
     args = parser.parse_args()
 
@@ -29,16 +31,18 @@ def main():
     model = BaseModel(input_channels=119, num_res_blocks=args.num_res_blocks)
     start_iter = 0
     training_log = []
+    replay_buffer = deque(maxlen=args.buffer_size)
 
     if args.resume:
         checkpoint = torch.load(args.resume, weights_only=False)
         model.load_state_dict(checkpoint["model_state_dict"])
         start_iter = checkpoint.get("iteration", 0) + 1
+        replay_buffer.extend(checkpoint.get("replay_buffer", []))
         log_path = os.path.join(args.results_dir, "training_log.json")
         if os.path.exists(log_path):
             with open(log_path) as f:
                 training_log = json.load(f)
-        print(f"Resumed from {args.resume} (starting at iteration {start_iter})")
+        print(f"Resumed from {args.resume} (starting at iteration {start_iter}, buffer: {len(replay_buffer)} samples)")
 
     print(f"Config: {vars(args)}")
     print(f"Model params: {sum(p.numel() for p in model.parameters()):,}")
@@ -59,11 +63,15 @@ def main():
         )
         print(f"  Collected {sp_stats['total_samples']} samples (avg game length: {sp_stats['avg_game_length']:.1f})")
 
+        # accumulate into replay buffer
+        replay_buffer.extend(samples)
+        print(f"  Replay buffer: {len(replay_buffer)}/{replay_buffer.maxlen} samples")
+
         # train
         print("Training phase:")
         epoch_losses = train(
             model,
-            samples,
+            list(replay_buffer),
             epochs=args.epochs,
             batch_size=args.batch_size,
             lr=args.lr,
@@ -76,6 +84,7 @@ def main():
             "iteration": iteration,
             "model_state_dict": model.state_dict(),
             "args": vars(args),
+            "replay_buffer": list(replay_buffer),
         }, ckpt_path)
         print(f"Saved checkpoint: {ckpt_path}")
 

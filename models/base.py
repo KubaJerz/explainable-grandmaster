@@ -27,7 +27,11 @@ class BaseModel(nn.Module):
         self.input_channels = input_channels
         self.num_res_blocks = num_res_blocks
 
-        self.stem = nn.Conv2d(input_channels, 256, kernel_size=3, padding=1)
+        self.stem = nn.Sequential(
+            nn.Conv2d(input_channels, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+        )
         self.backbone = nn.Sequential(*[ResNetBlock(256, 256) for _ in range(num_res_blocks)])
 
         self.plocy_head = nn.Sequential(

@@ -146,31 +146,33 @@ UNDERPROMO_DIRECTIONS = [-1, 0, 1]  # file deltas: left-capture, forward, right-
 
 def move_to_index(move):
     """Convert a chess.Move to a policy vector index (0-4671)."""
+    #ranks = rows
+    # files = columns
     from_sq = move.from_square
     to_sq = move.to_square
 
     from_rank, from_file = chess.square_rank(from_sq), chess.square_file(from_sq)
     to_rank, to_file = chess.square_rank(to_sq), chess.square_file(to_sq)
 
-    dr = to_rank - from_rank
-    df = to_file - from_file
+    distance_row = to_rank - from_rank
+    distance_col = to_file - from_file
 
     # Underpromotions (knight, bishop, rook — queen promos use queen-like encoding)
     if move.promotion and move.promotion != chess.QUEEN:
         piece_idx = UNDERPROMO_PIECES.index(move.promotion)
-        dir_idx = UNDERPROMO_DIRECTIONS.index(df)
+        dir_idx = UNDERPROMO_DIRECTIONS.index(distance_col)
         move_type = 64 + dir_idx * 3 + piece_idx
         return from_sq * 73 + move_type
 
     # Knight moves
-    if (dr, df) in KNIGHT_MOVES:
-        knight_idx = KNIGHT_MOVES.index((dr, df))
+    if (distance_row, distance_col) in KNIGHT_MOVES:
+        knight_idx = KNIGHT_MOVES.index((distance_row, distance_col))
         move_type = 56 + knight_idx
         return from_sq * 73 + move_type
 
     # Queen-like moves (includes queen promotions)
-    distance = max(abs(dr), abs(df))
-    direction = (_sign(dr), _sign(df))
+    distance = max(abs(distance_row), abs(distance_col))
+    direction = (_sign(distance_row), _sign(distance_col))
     dir_idx = QUEEN_DIRECTIONS.index(direction)
     move_type = dir_idx * 7 + (distance - 1)
     return from_sq * 73 + move_type
