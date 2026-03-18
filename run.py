@@ -46,7 +46,9 @@ def main():
         checkpoint = torch.load(args.resume, weights_only=False)
         model.load_state_dict(checkpoint["model_state_dict"])
         start_iter = checkpoint.get("iteration", 0) + 1
-        replay_buffer.extend(checkpoint.get("replay_buffer", []))
+        buffer_path = os.path.join(args.results_dir, "replay_buffer.pt")
+        if os.path.exists(buffer_path):
+            replay_buffer.extend(torch.load(buffer_path, weights_only=False))
         log_path = os.path.join(args.results_dir, "training_log.json")
         if os.path.exists(log_path):
             with open(log_path) as f:
@@ -90,15 +92,18 @@ def main():
             device=device,
         )
 
-        # checkpoint
+        # checkpoint (model only)
         ckpt_path = os.path.join(args.results_dir, f"model_iter_{iteration}.pt")
         torch.save({
             "iteration": iteration,
             "model_state_dict": model.state_dict(),
             "args": vars(args),
-            "replay_buffer": list(replay_buffer),
         }, ckpt_path)
         print(f"Saved checkpoint: {ckpt_path}")
+
+        # replay buffer saved separately (overwritten each iteration)
+        buffer_path = os.path.join(args.results_dir, "replay_buffer.pt")
+        torch.save(list(replay_buffer), buffer_path)
 
         # log stats
         iter_stats = {
