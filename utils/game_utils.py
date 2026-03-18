@@ -243,7 +243,7 @@ def make_output_valid(policy, board):
 
 def is_terminal(board):
     """Check if the game is over."""
-    return board.is_game_over()
+    return board.is_game_over(claim_draw=True)
 
 
 def terminal_state_evaluation(board):

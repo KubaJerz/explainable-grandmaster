@@ -120,4 +120,6 @@ class MCTS:
 
     def select_best_action(self):
         policy = self.get_policy()
+        if self.tau > 0.01:
+            return torch.multinomial(policy, 1).item()
         return torch.argmax(policy).item()
