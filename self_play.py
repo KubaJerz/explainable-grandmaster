@@ -7,13 +7,13 @@ from mcts.mcts import MCTS
 MAX_MOVES = 512
 
 
-def play_game(model, mcts_sims=800, c_puct=1.0, tau_threshold=30, device="cpu"):
+def play_game(evaluate_fn, mcts_sims=800, c_puct=1.0, tau_threshold=30):
     """Play a single self-play game using MCTS, returning training data.
 
     Runs till end of game or max moves.
 
     Args:
-        model: the neural network (policy + value heads)
+        evaluate_fn: callable(tensor) -> (policy, value) for board evaluation
         mcts_sims: number of MCTS simulations per move
         c_puct: exploration constant
         tau_threshold: move number after which temperature drops to ~0
@@ -30,7 +30,7 @@ def play_game(model, mcts_sims=800, c_puct=1.0, tau_threshold=30, device="cpu"):
         tau = 1.0 if move_num < tau_threshold else 0.01
 
         #run the mcts
-        mcts = MCTS(model, c_puct=c_puct, tau=tau, device=device)
+        mcts = MCTS(evaluate_fn, c_puct=c_puct, tau=tau)
         action = mcts.mcts_search(game_state, mcts_sims)
         mcts_policy = mcts.get_policy()
 
@@ -67,7 +67,7 @@ def play_game(model, mcts_sims=800, c_puct=1.0, tau_threshold=30, device="cpu"):
     return training_data
 
 
-def generate_games(model, num_games, mcts_sims=800, c_puct=1.0, tau_threshold=30, device="cpu"):
+def generate_games(evaluate_fn, num_games, mcts_sims=800, c_puct=1.0, tau_threshold=30):
     """Generate multiple self-play games and collect all training samples.
 
     Returns:
@@ -79,7 +79,7 @@ def generate_games(model, num_games, mcts_sims=800, c_puct=1.0, tau_threshold=30
 
     for i in range(num_games):
         print(f"  Self-play game {i+1}/{num_games}", end="", flush=True)
-        samples = play_game(model, mcts_sims=mcts_sims, c_puct=c_puct, tau_threshold=tau_threshold, device=device)
+        samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, tau_threshold=tau_threshold)
         game_lengths.append(len(samples))
         all_samples.extend(samples)
         print(f" — {len(samples)} moves")

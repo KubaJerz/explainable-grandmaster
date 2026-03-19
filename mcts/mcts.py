@@ -1,5 +1,6 @@
-import torch
 import math
+
+import torch
 
 from utils.game_utils import make_output_valid, is_terminal, terminal_state_evaluation, index_to_move, GameState
 
@@ -31,23 +32,20 @@ class MCTS:
     Initialize at the node from which to run the search, then call mcts_search
     to perform the search and get the best action.
     """
-    def __init__(self, model, c_puct=1.0, tau=1.0, device="cpu"):
-        self.model = model
+    def __init__(self, evaluate_fn, c_puct=1.0, tau=1.0):
+        self.evaluate_fn = evaluate_fn
         self.c_puct = c_puct
         self.tau = tau
-        self.device = device
         self.root = None
 
     def mcts_search(self, game_state, num_simulations):
         # Encode state and get initial policy/value from the network
-        tensor = game_state.encode().unsqueeze(0).to(self.device)
-        self.model.eval()
-        with torch.no_grad():
-            nn_priors, value = self.model(tensor)
+        tensor = game_state.encode()
+        nn_priors, value = self.evaluate_fn(tensor)
 
         self.root = MCTSNode(game_state)
-        self.root.set_prior_probs(torch.softmax(nn_priors.squeeze(), dim=0).cpu())
-        self.root.value_sum = value.item()
+        self.root.set_prior_probs(nn_priors)
+        self.root.value_sum = value
 
         for _ in range(num_simulations):
             self.simulate(self.root)
@@ -70,12 +68,10 @@ class MCTS:
         new_state = parent_node.game_state.apply_move(move)
         leaf_node = MCTSNode(new_state, len(parent_node.prior_probs))
 
-        tensor = new_state.encode().unsqueeze(0).to(self.device)
-        self.model.eval()
-        with torch.no_grad():
-            nn_priors, value = self.model(tensor)
-            leaf_node.set_prior_probs(torch.softmax(nn_priors.squeeze(), dim=0).cpu())
-            leaf_node.value_sum = value.item()
+        tensor = new_state.encode()
+        nn_priors, value = self.evaluate_fn(tensor)
+        leaf_node.set_prior_probs(nn_priors)
+        leaf_node.value_sum = value
 
         return leaf_node, leaf_node.value_sum
 

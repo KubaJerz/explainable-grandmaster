@@ -1,6 +1,8 @@
 import argparse
 import json
 import os
+import random
+import time
 from collections import deque
 import torch
 
@@ -11,17 +13,19 @@ from train import train
 
 def main():
     parser = argparse.ArgumentParser(description="AlphaZero iteration pipeline")
-    parser.add_argument("--iterations", type=int, default=10)
+    parser.add_argument("--iterations", type=int, default=200)
     parser.add_argument("--games-per-iter", type=int, default=25)
-    parser.add_argument("--mcts-sims", type=int, default=50)
+    parser.add_argument("--mcts-sims", type=int, default=150)
     parser.add_argument("--epochs", type=int, default=5)
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
-    parser.add_argument("--num-res-blocks", type=int, default=5)
+    parser.add_argument("--num-res-blocks", type=int, default=19)
     parser.add_argument("--c-puct", type=float, default=1.0)
     parser.add_argument("--results-dir", type=str, default="results/")
     parser.add_argument("--buffer-size", type=int, default=50000, help="Replay buffer capacity (FIFO)")
+    parser.add_argument("--draw-keep-ratio", type=float, default=0.25,
+                        help="Probability of keeping samples from drawn games (0-1)")
     parser.add_argument("--resume", type=str, default=None, help="Path to checkpoint to resume from")
     args = parser.parse_args()
 
@@ -64,17 +68,45 @@ def main():
         print(f"Iteration {iteration}/{args.iterations - 1}")
         print(f"{'='*60}")
 
+        iter_start = time.time()
+
         # self play
         print("Self-play phase:")
         model.eval()
+
+        def evaluate_fn(tensor):
+            with torch.no_grad():
+                t = tensor.unsqueeze(0).to(device)
+                policy, value = model(t)
+                return torch.softmax(policy.squeeze(), dim=0).cpu(), value.item()
+
+        sp_start = time.time()
         samples, sp_stats = generate_games(
-            model,
+            evaluate_fn,
             num_games=args.games_per_iter,
             mcts_sims=args.mcts_sims,
             c_puct=args.c_puct,
-            device=device,
         )
+        sp_elapsed = time.time() - sp_start
         print(f"  Collected {sp_stats['total_samples']} samples (avg game length: {sp_stats['avg_game_length']:.1f})")
+        print(f"  Self-play time: {sp_elapsed:.1f}s")
+
+        # Downsample draws to reduce draw dominance in training
+        kept_samples = []
+        # Group samples by game using game_lengths from stats
+        offset = 0
+        draws_skipped = 0
+        for gl in sp_stats["game_lengths"]:
+            game_samples = samples[offset:offset + gl]
+            offset += gl
+            is_draw = game_samples[0][2].item() == 0.0 if game_samples else False
+            if is_draw and random.random() > args.draw_keep_ratio:
+                draws_skipped += 1
+                continue
+            kept_samples.extend(game_samples)
+        if draws_skipped > 0:
+            print(f"  Skipped {draws_skipped} drawn games, keeping {len(kept_samples)}/{len(samples)} samples")
+        samples = kept_samples
 
         # accumulate into replay buffer
         replay_buffer.extend(samples)
@@ -82,6 +114,7 @@ def main():
 
         # train
         print("Training phase:")
+        train_start = time.time()
         epoch_losses = train(
             model,
             list(replay_buffer),
@@ -91,6 +124,8 @@ def main():
             weight_decay=args.weight_decay,
             device=device,
         )
+        train_elapsed = time.time() - train_start
+        print(f"  Training time: {train_elapsed:.1f}s")
 
         # checkpoint (model only)
         ckpt_path = os.path.join(args.results_dir, f"model_iter_{iteration}.pt")
@@ -105,12 +140,20 @@ def main():
         buffer_path = os.path.join(args.results_dir, "replay_buffer.pt")
         torch.save(list(replay_buffer), buffer_path)
 
+        iter_elapsed = time.time() - iter_start
+        print(f"  Iteration total: {iter_elapsed:.1f}s")
+
         # log stats
         iter_stats = {
             "iteration": iteration,
             "self_play": sp_stats,
             "training": epoch_losses,
             "final_loss": epoch_losses[-1]["total"],
+            "timing": {
+                "self_play_s": round(sp_elapsed, 2),
+                "training_s": round(train_elapsed, 2),
+                "iteration_s": round(iter_elapsed, 2),
+            },
         }
         training_log.append(iter_stats)
 
