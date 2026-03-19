@@ -1,11 +1,9 @@
 import tkinter as tk
 import chess
+import io
+from PIL import Image, ImageTk
+import cairosvg
 
-
-PIECE_SYMBOLS = {
-    'P': '♙', 'N': '♘', 'B': '♗', 'R': '♖', 'Q': '♕', 'K': '♔',
-    'p': '♟', 'n': '♞', 'b': '♝', 'r': '♜', 'q': '♛', 'k': '♚'
-}
 
 class ChessGUI:
     def __init__(self, board=None, ai_callback=None, ai_color='black', human_color='white'):
@@ -20,6 +18,19 @@ class ChessGUI:
 
         self.root = tk.Tk()
         self.root.title("Chess Board")
+
+        # Load piece images
+        self.piece_images = {}
+        for piece_symbol in ['P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k']:
+            color = 'w' if piece_symbol.isupper() else 'b'
+            filename = f"pieces/{color}{piece_symbol.upper()}.svg"
+            with open(filename, 'rb') as f:
+                svg_data = f.read()
+            png_data = cairosvg.svg2png(bytestring=svg_data)
+            image = Image.open(io.BytesIO(png_data))
+            image = image.resize((40, 40), Image.LANCZOS)
+            self.piece_images[piece_symbol] = ImageTk.PhotoImage(image)
+
         self.canvas = tk.Canvas(self.root, width=400, height=400)
         self.canvas.pack()
         self.canvas.bind("<Button-1>", self.on_click)
@@ -69,9 +80,9 @@ class ChessGUI:
                 # Draw piece
                 piece = self.board.piece_at(square)
                 if piece:
-                    symbol = PIECE_SYMBOLS[piece.symbol()]
-                    self.canvas.create_text(x1 + square_size//2, y1 + square_size//2,
-                                          text=symbol, font=("Arial", 30), anchor="center")
+                    img = self.piece_images[piece.symbol()]
+                    self.canvas.create_image(x1 + square_size//2, y1 + square_size//2,
+                                           image=img, anchor="center")
 
     def update_status(self):
         if self.board.is_checkmate():
