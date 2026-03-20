@@ -12,10 +12,9 @@ import berserk
 
 def load_model(model_path, device):
     """Load pretrained model from checkpoint."""
-    # checkpoint = torch.load(model_path, map_location=device, weights_only=False)
-    # model = BaseModel(input_channels=119, num_res_blocks=checkpoint.get('num_res_blocks', 5))
-    # model.load_state_dict(checkpoint['model_state_dict'])
-    model = BaseModel(input_channels=119, num_res_blocks=5)  # Use default architecture
+    checkpoint = torch.load(model_path, map_location=device, weights_only=False)
+    model = BaseModel(input_channels=119, num_res_blocks=checkpoint['args']['num_res_blocks'])
+    model.load_state_dict(checkpoint['model_state_dict'])
     model.to(device)
     model.eval()
     return model
@@ -112,7 +111,7 @@ def main():
     parser = argparse.ArgumentParser(description="Play chess with pretrained model")
     parser.add_argument("--model", type=str, required=True, help="Path to model checkpoint")
     parser.add_argument("--mode", choices=["local", "remote"], required=True, help="Play mode")
-    parser.add_argument("--mcts-sims", type=int, default=800, help="MCTS simulations per move")
+    parser.add_argument("--mcts-sims", type=int, default=150, help="MCTS simulations per move")
     parser.add_argument("--c-puct", type=float, default=1.0, help="MCTS exploration constant")
     parser.add_argument("--token", type=str, default='')
     parser.add_argument("--human-color", choices=["white", "black"], default="white", help="Human player's color in local modes")
