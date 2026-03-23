@@ -22,20 +22,21 @@ class ResNetBlock(nn.Module):
         return out
 
 class BaseModel(nn.Module):
-    def __init__(self, input_channels, num_res_blocks=19):
+    def __init__(self, input_channels, num_res_blocks=5, num_channels=128):
         super(BaseModel, self).__init__()
         self.input_channels = input_channels
         self.num_res_blocks = num_res_blocks
+        self.num_channels = num_channels
 
         self.stem = nn.Sequential(
-            nn.Conv2d(input_channels, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
+            nn.Conv2d(input_channels, num_channels, kernel_size=3, padding=1),
+            nn.BatchNorm2d(num_channels),
             nn.ReLU(inplace=True),
         )
-        self.backbone = nn.Sequential(*[ResNetBlock(256, 256) for _ in range(num_res_blocks)])
+        self.backbone = nn.Sequential(*[ResNetBlock(num_channels, num_channels) for _ in range(num_res_blocks)])
 
         self.plocy_head = nn.Sequential(
-            nn.Conv2d(256, 2, kernel_size=1),
+            nn.Conv2d(num_channels, 2, kernel_size=1),
             nn.BatchNorm2d(2),
             nn.ReLU(),
             nn.Flatten(),
@@ -45,13 +46,13 @@ class BaseModel(nn.Module):
                                              #  NOTE: this inefficiently encodes the underpromotions but hwo alpha zero does it .
 
         self.value_head = nn.Sequential(
-            nn.Conv2d(256, 1, kernel_size=1),
+            nn.Conv2d(num_channels, 1, kernel_size=1),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(1 * 8 * 8, 256),
-            nn.ReLU(),  
-            nn.Linear(256, 1),
+            nn.Linear(1 * 8 * 8, num_channels),
+            nn.ReLU(),
+            nn.Linear(num_channels, 1),
             nn.Tanh()
         )
 

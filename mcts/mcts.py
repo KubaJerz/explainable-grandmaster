@@ -32,10 +32,12 @@ class MCTS:
     Initialize at the node from which to run the search, then call mcts_search
     to perform the search and get the best action.
     """
-    def __init__(self, evaluate_fn, c_puct=1.0, tau=1.0):
+    def __init__(self, evaluate_fn, c_puct=1.0, tau=1.0, dirichlet_alpha=0.3, dirichlet_epsilon=0.25):
         self.evaluate_fn = evaluate_fn
         self.c_puct = c_puct
         self.tau = tau
+        self.dirichlet_alpha = dirichlet_alpha
+        self.dirichlet_epsilon = dirichlet_epsilon
         self.root = None
 
     def mcts_search(self, game_state, num_simulations):
@@ -46,6 +48,19 @@ class MCTS:
         self.root = MCTSNode(game_state)
         self.root.set_prior_probs(nn_priors)
         self.root.value_sum = value
+
+        # Add Dirichlet noise to root priors for exploration (Silver et al.)
+        # P(s,a) = (1 - ε) * p_a + ε * η_a, where η ~ Dir(α)
+        self._root_noise = torch.zeros_like(self.root.prior_probs)
+        if self.dirichlet_epsilon > 0:
+            legal_mask = self.root.prior_probs > 0
+            num_legal = legal_mask.sum().item()
+            if num_legal > 0:
+                noise = torch.zeros_like(self.root.prior_probs)
+                dist = torch.distributions.Dirichlet(torch.full((int(num_legal),), self.dirichlet_alpha))
+                noise[legal_mask] = dist.sample()
+                self._root_noise = noise
+                self.root.prior_probs = (1 - self.dirichlet_epsilon) * self.root.prior_probs + self.dirichlet_epsilon * noise
 
         for _ in range(num_simulations):
             self.simulate(self.root)
@@ -101,9 +116,22 @@ class MCTS:
 
         return negated_value
 
-    def get_policy(self):
-        """Extract the MCTS policy from root visit counts, respecting temperature."""
-        visit_counts = self.root.visit_counts
+    def get_policy(self, prune_noise_visits=False):
+        """Extract the MCTS policy from root visit counts, respecting temperature.
+
+        If prune_noise_visits=True, subtracts the expected visit contribution from
+        Dirichlet noise before computing the policy (KataGo policy target pruning).
+        This makes training targets reflect the network's own search, not forced exploration.
+        """
+        visit_counts = self.root.visit_counts.clone()
+
+        if prune_noise_visits and self.dirichlet_epsilon > 0:
+            # Estimate visits attributable to noise: ε * noise_prior * total_visits
+            # Subtract these so the policy target reflects the network's search, not noise
+            total_visits = visit_counts.sum()
+            noise_visits = self.dirichlet_epsilon * self._root_noise * total_visits
+            visit_counts = torch.clamp(visit_counts - noise_visits, min=0)
+
         if self.tau <= 0.01:
             # Greedy: one-hot on most-visited
             policy = torch.zeros_like(visit_counts)

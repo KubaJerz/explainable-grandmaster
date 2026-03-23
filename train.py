@@ -1,19 +1,26 @@
 import torch
 import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
 
 
 class SelfPlayDataset(Dataset):
     """Dataset wrapping self-play training samples."""
 
-    def __init__(self, samples):
+    def __init__(self, samples, decisive_weight=1.0):
         """
         Args:
             samples: list of (state_tensor, policy_target, value_target)
+            decisive_weight: sampling weight for decisive (non-draw) samples
         """
         self.states = torch.stack([s[0] for s in samples])
         self.policies = torch.stack([s[1] for s in samples])
         self.values = torch.stack([s[2] for s in samples])
+        # Decisive samples (value != 0) get higher weight
+        self.weights = torch.where(
+            self.values.abs() > 0,
+            torch.tensor(decisive_weight),
+            torch.tensor(1.0),
+        )
 
     def __len__(self):
         return len(self.states)
@@ -31,7 +38,8 @@ they also not have L2 regularizationin the paper we do viz weight decay in the o
 """
 
 
-def train(model, samples, epochs=5, batch_size=64, lr=1e-3, weight_decay=1e-4, device="cpu"):
+def train(model, samples, epochs=5, batch_size=64, lr=1e-3, weight_decay=1e-4,
+          device="cpu", decisive_weight=1.0):
     """Train the model on self-play data using AlphaZero loss.
 
     Loss = MSE(value) + CE(policy) + L2 regularization (we do via weight decay in loss func)
@@ -45,12 +53,14 @@ def train(model, samples, epochs=5, batch_size=64, lr=1e-3, weight_decay=1e-4, d
         batch_size: mini-batch size
         lr: learning rate
         weight_decay: L2 regularization strength
+        decisive_weight: sampling weight for decisive (non-draw) samples
 
     Returns:
         list of per-epoch average losses
     """
-    dataset = SelfPlayDataset(samples)
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    dataset = SelfPlayDataset(samples, decisive_weight=decisive_weight)
+    sampler = WeightedRandomSampler(dataset.weights, num_samples=len(dataset), replacement=True)
+    dataloader = DataLoader(dataset, batch_size=batch_size, sampler=sampler)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     model.train()

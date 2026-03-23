@@ -1,3 +1,5 @@
+import random
+
 import torch
 import chess
 
@@ -7,32 +9,45 @@ from mcts.mcts import MCTS
 MAX_MOVES = 512
 
 
-def play_game(evaluate_fn, mcts_sims=800, c_puct=1.0, tau_threshold=30):
+def play_game(evaluate_fn, mcts_sims=800, c_puct=1.0, tau_threshold=30,
+              playout_cap_fraction=0.25, full_search_prob=0.25):
     """Play a single self-play game using MCTS, returning training data.
 
-    Runs till end of game or max moves.
+    Runs till end of game or max moves. Uses playout cap randomization (KataGo):
+    each turn randomly gets either full sims or reduced sims. Only full-search
+    turns contribute policy targets; all turns contribute value targets.
 
     Args:
         evaluate_fn: callable(tensor) -> (policy, value) for board evaluation
-        mcts_sims: number of MCTS simulations per move
+        mcts_sims: number of MCTS simulations per move (full search)
         c_puct: exploration constant
         tau_threshold: move number after which temperature drops to ~0
+        playout_cap_fraction: fraction of mcts_sims for capped (quick) turns
+        full_search_prob: probability of a turn getting full search
 
     Returns:
         list of (state_tensor, policy_target, value_target) tuples
     """
     game_state = GameState(chess.Board())
-    trajectory = []  # (tensor, mcts_policy, side_to_move)
+    trajectory = []  # (tensor, mcts_policy_or_None, side_to_move)
+
+    capped_sims = max(1, int(mcts_sims * playout_cap_fraction))
 
     move_num = 0
     while not is_terminal(game_state.board) and move_num < MAX_MOVES:
         # Temperature schedule: tau=1 for first N moves, then near-zero
         tau = 1.0 if move_num < tau_threshold else 0.01
 
+        # Playout cap randomization: full search or capped search
+        is_full_search = random.random() < full_search_prob
+        sims = mcts_sims if is_full_search else capped_sims
+
         #run the mcts
         mcts = MCTS(evaluate_fn, c_puct=c_puct, tau=tau)
-        action = mcts.mcts_search(game_state, mcts_sims)
-        mcts_policy = mcts.get_policy()
+        action = mcts.mcts_search(game_state, sims)
+
+        # Policy target only from full-search turns (with noise pruning)
+        mcts_policy = mcts.get_policy(prune_noise_visits=True) if is_full_search else None
 
         # Store position data to use for training later
         state_tensor = game_state.encode()
@@ -57,10 +72,13 @@ def play_game(evaluate_fn, mcts_sims=800, c_puct=1.0, tau_threshold=30):
         # Hit move cap — adjudicate as draw
         z_white = 0.0
 
-    # value targets "z" from each position's side-to-move perspective given the outcoem of the game
-    # this is from page 
+    # value targets "z" from each position's side-to-move perspective given the outcome of the game
+    # Policy targets only from full-search turns (playout cap randomization);
+    # capped turns still contribute value targets.
     training_data = []
     for state_tensor, mcts_policy, side in trajectory:
+        if mcts_policy is None:
+            continue  # capped turn — no policy target, skip entirely
         value_target = z_white if side == chess.WHITE else -z_white
         training_data.append((state_tensor, mcts_policy, torch.tensor(value_target, dtype=torch.float32)))
 

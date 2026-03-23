@@ -16,11 +16,12 @@ def main():
     parser.add_argument("--iterations", type=int, default=200)
     parser.add_argument("--games-per-iter", type=int, default=25)
     parser.add_argument("--mcts-sims", type=int, default=150)
-    parser.add_argument("--epochs", type=int, default=5)
+    parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
-    parser.add_argument("--num-res-blocks", type=int, default=19)
+    parser.add_argument("--num-res-blocks", type=int, default=5)
+    parser.add_argument("--num-channels", type=int, default=128)
     parser.add_argument("--c-puct", type=float, default=1.0)
     parser.add_argument("--results-dir", type=str, default="results/")
     parser.add_argument("--buffer-size", type=int, default=50000, help="Replay buffer capacity (FIFO)")
@@ -40,7 +41,7 @@ def main():
         device = torch.device("cpu")
 
     # Initialize or load model
-    model = BaseModel(input_channels=119, num_res_blocks=args.num_res_blocks)
+    model = BaseModel(input_channels=119, num_res_blocks=args.num_res_blocks, num_channels=args.num_channels)
     model.to(device)
     start_iter = 0
     training_log = []
