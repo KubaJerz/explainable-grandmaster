@@ -9,10 +9,12 @@ import torch
 from models.base import BaseModel
 from self_play import generate_games
 from train import train
+from utils.board_utils import add_board_argument, get_board_spec, validate_checkpoint_board
 
 
 def main():
     parser = argparse.ArgumentParser(description="AlphaZero iteration pipeline")
+    add_board_argument(parser)
     parser.add_argument("--iterations", type=int, default=200)
     parser.add_argument("--games-per-iter", type=int, default=25)
     parser.add_argument("--mcts-sims", type=int, default=150)
@@ -29,6 +31,8 @@ def main():
                         help="Probability of keeping samples from drawn games (0-1)")
     parser.add_argument("--resume", type=str, default=None, help="Path to checkpoint to resume from")
     args = parser.parse_args()
+    board_spec = get_board_spec(args.board)
+    args.board = board_spec.name
 
     os.makedirs(args.results_dir, exist_ok=True)
 
@@ -41,7 +45,13 @@ def main():
         device = torch.device("cpu")
 
     # Initialize or load model
-    model = BaseModel(input_channels=119, num_res_blocks=args.num_res_blocks, num_channels=args.num_channels)
+    model = BaseModel(
+        input_channels=board_spec.input_channels,
+        board_shape=(board_spec.rows, board_spec.cols),
+        policy_size=board_spec.policy_size,
+        num_res_blocks=args.num_res_blocks,
+        num_channels=args.num_channels,
+    )
     model.to(device)
     start_iter = 0
     training_log = []
@@ -49,6 +59,7 @@ def main():
 
     if args.resume:
         checkpoint = torch.load(args.resume, weights_only=False)
+        validate_checkpoint_board(checkpoint.get("args", {}), board_spec)
         model.load_state_dict(checkpoint["model_state_dict"])
         start_iter = checkpoint.get("iteration", 0) + 1
         buffer_path = os.path.join(args.results_dir, "replay_buffer.pt")
@@ -87,6 +98,7 @@ def main():
             num_games=args.games_per_iter,
             mcts_sims=args.mcts_sims,
             c_puct=args.c_puct,
+            board_spec=board_spec,
         )
         sp_elapsed = time.time() - sp_start
         print(f"  Collected {sp_stats['total_samples']} samples (avg game length: {sp_stats['avg_game_length']:.1f})")
@@ -134,6 +146,9 @@ def main():
             "iteration": iteration,
             "model_state_dict": model.state_dict(),
             "args": vars(args),
+            "board_shape": [board_spec.rows, board_spec.cols],
+            "policy_size": board_spec.policy_size,
+            "input_channels": board_spec.input_channels,
         }, ckpt_path)
         print(f"Saved checkpoint: {ckpt_path}")
 

@@ -13,6 +13,7 @@ import torch.multiprocessing as mp
 from models.base import BaseModel
 from self_play import play_game
 from train import train
+from utils.board_utils import add_board_argument, get_board_spec, validate_checkpoint_board
 
 
 class InferenceServer:
@@ -151,12 +152,14 @@ class InferenceServer:
 
 
 def self_play_worker(worker_id, request_queue, response_queue, results_queue,
-                     stop_event, mcts_sims, c_puct):
+                     stop_event, mcts_sims, c_puct, board_name):
     """Self-play worker process. Plays games and sends results back via queue."""
     # Re-seed RNGs so forked processes don't all play identical games
     seed = os.getpid() + worker_id
     random.seed(seed)
     torch.manual_seed(seed)
+
+    board_spec = get_board_spec(board_name)
 
     def evaluate_fn(tensor):
         request_queue.put((worker_id, tensor))
@@ -164,7 +167,7 @@ def self_play_worker(worker_id, request_queue, response_queue, results_queue,
         return policy, value
 
     while not stop_event.is_set():
-        samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct)
+        samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
         game_len = len(samples)
 
         # Serialize tensors to bytes to avoid leaking shared-memory file descriptors
@@ -174,7 +177,7 @@ def self_play_worker(worker_id, request_queue, response_queue, results_queue,
 
 
 def trainer_loop(replay_buffer, results_queue, server, train_model, args,
-                 training_log, device, start_iteration, stop_event):
+                 training_log, device, start_iteration, stop_event, board_spec):
     """Runs training iterations, consuming completed games from results_queue."""
     samples_since_train = 0
     games_played = 0
@@ -257,6 +260,9 @@ def trainer_loop(replay_buffer, results_queue, server, train_model, args,
             "iteration": iteration,
             "model_state_dict": train_model.state_dict(),
             "args": vars(args),
+            "board_shape": [board_spec.rows, board_spec.cols],
+            "policy_size": board_spec.policy_size,
+            "input_channels": board_spec.input_channels,
         }, ckpt_path)
         print(f"Saved checkpoint: {ckpt_path}")
 
@@ -299,9 +305,10 @@ def trainer_loop(replay_buffer, results_queue, server, train_model, args,
 
 
 def main():
-    mp.set_start_method("fork", force=True)
+    mp.set_start_method("spawn" if os.name == "nt" else "fork", force=True)
 
     parser = argparse.ArgumentParser(description="AlphaZero parallel training pipeline")
+    add_board_argument(parser)
     parser.add_argument("--iterations", type=int, default=100)
     parser.add_argument("--num-workers", type=int, default=20)
     parser.add_argument("--min-samples", type=int, default=2048,
@@ -326,6 +333,8 @@ def main():
     parser.add_argument("--max-wait-ms", type=float, default=5.0,
                         help="Max time (ms) inference server waits to fill a batch")
     args = parser.parse_args()
+    board_spec = get_board_spec(args.board)
+    args.board = board_spec.name
 
     os.makedirs(args.results_dir, exist_ok=True)
 
@@ -341,7 +350,7 @@ def main():
         p = mp.Process(
             target=self_play_worker,
             args=(i, request_queue, response_queues[i], results_queue,
-                  stop_event, args.mcts_sims, args.c_puct),
+                  stop_event, args.mcts_sims, args.c_puct, board_spec.name),
             daemon=True,
         )
         p.start()
@@ -356,7 +365,13 @@ def main():
         device = torch.device("cpu")
 
     # Create training model (for gradient updates)
-    train_model = BaseModel(input_channels=119, num_res_blocks=args.num_res_blocks, num_channels=args.num_channels)
+    train_model = BaseModel(
+        input_channels=board_spec.input_channels,
+        board_shape=(board_spec.rows, board_spec.cols),
+        policy_size=board_spec.policy_size,
+        num_res_blocks=args.num_res_blocks,
+        num_channels=args.num_channels,
+    )
     train_model.to(device)
 
     # Replay buffer (local to main process)
@@ -367,6 +382,7 @@ def main():
     # Resume from checkpoint
     if args.resume:
         checkpoint = torch.load(args.resume, weights_only=False)
+        validate_checkpoint_board(checkpoint.get("args", {}), board_spec)
         train_model.load_state_dict(checkpoint["model_state_dict"])
         start_iteration = checkpoint.get("iteration", 0) + 1
         buffer_path = os.path.join(args.results_dir, "replay_buffer.pt")
@@ -380,7 +396,13 @@ def main():
               f"buffer: {len(replay_buffer)} samples)")
 
     # Create inference model (separate instance, lives inside server)
-    inference_model = BaseModel(input_channels=119, num_res_blocks=args.num_res_blocks, num_channels=args.num_channels)
+    inference_model = BaseModel(
+        input_channels=board_spec.input_channels,
+        board_shape=(board_spec.rows, board_spec.cols),
+        policy_size=board_spec.policy_size,
+        num_res_blocks=args.num_res_blocks,
+        num_channels=args.num_channels,
+    )
     inference_model.to(device)
     inference_model.load_state_dict(train_model.state_dict())
     inference_model.eval()
@@ -404,7 +426,7 @@ def main():
     # Run trainer on main thread
     try:
         trainer_loop(replay_buffer, results_queue, server, train_model, args,
-                     training_log, device, start_iteration, stop_event)
+                     training_log, device, start_iteration, stop_event, board_spec)
     finally:
         # Graceful shutdown
         stop_event.set()

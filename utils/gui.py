@@ -1,37 +1,42 @@
-import tkinter as tk
-import chess
 import io
-from PIL import Image, ImageTk
+import tkinter as tk
+
 import cairosvg
+from PIL import Image, ImageTk
+
+from utils.game_utils import GameState
 
 
 class ChessGUI:
-    def __init__(self, board=None, ai_callback=None, ai_color='black', human_color='white'):
-        self.board = board or chess.Board()
-        self.ai_callback = ai_callback  # Function to get AI move: ai_callback(game_state) -> move
+    def __init__(self, board_spec, board=None, ai_callback=None, ai_color="black", human_color="white"):
+        self.board_spec = board_spec
+        self.board = board or board_spec.create_board()
+        self.ai_callback = ai_callback
         self.ai_color = ai_color.lower()
         self.human_color = human_color.lower()
         self.selected_square = None
-        self.legal_moves = []
+        self.legal_moves = {}
         self.history = []
-        self.flip = (self.human_color == 'black')  # Flip if human plays black
+        self.flip = self.human_color == "black"
 
+        self.square_size = 50
         self.root = tk.Tk()
-        self.root.title("Chess Board")
+        self.root.title(f"Chess Board - {board_spec.name}")
 
-        # Load piece images
         self.piece_images = {}
-        for piece_symbol in ['P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k']:
-            color = 'w' if piece_symbol.isupper() else 'b'
+        for piece_symbol in ["P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"]:
+            color = "w" if piece_symbol.isupper() else "b"
             filename = f"pieces/{color}{piece_symbol.upper()}.svg"
-            with open(filename, 'rb') as f:
-                svg_data = f.read()
+            with open(filename, "rb") as handle:
+                svg_data = handle.read()
             png_data = cairosvg.svg2png(bytestring=svg_data)
             image = Image.open(io.BytesIO(png_data))
-            image = image.resize((40, 40), Image.LANCZOS)
+            image = image.resize((int(self.square_size * 0.8), int(self.square_size * 0.8)), Image.LANCZOS)
             self.piece_images[piece_symbol] = ImageTk.PhotoImage(image)
 
-        self.canvas = tk.Canvas(self.root, width=400, height=400)
+        canvas_width = self.board_spec.cols * self.square_size
+        canvas_height = self.board_spec.rows * self.square_size
+        self.canvas = tk.Canvas(self.root, width=canvas_width, height=canvas_height)
         self.canvas.pack()
         self.canvas.bind("<Button-1>", self.on_click)
         self.status_label = tk.Label(self.root, text="")
@@ -39,129 +44,81 @@ class ChessGUI:
         self.draw_board()
         self.update_status()
 
-        # If it's AI's turn at the start, make AI move
-        human_turn = (self.board.turn == chess.WHITE and self.human_color == 'white') or \
-                     (self.board.turn == chess.BLACK and self.human_color == 'black')
-        if not human_turn and self.ai_callback:
-            self.status_label.config(text="AI is thinking...")
-            self.root.update()
-            game_state = self.create_game_state()
-            ai_move = self.ai_callback(game_state)
-            self.board.push(ai_move)
-            self.history = [self.board.copy()] + self.history[:6]
-            self.update_status()
-            self.draw_board()
+        if self._is_ai_turn():
+            self._make_ai_move()
 
     def draw_board(self):
         self.canvas.delete("all")
-        square_size = 50
-        for row in range(8):
-            for col in range(8):
-                x1 = col * square_size
-                if self.flip:
-                    y1 = row * square_size  # Black at bottom
-                else:
-                    y1 = (7 - row) * square_size  # White at bottom
-                x2 = x1 + square_size
-                y2 = y1 + square_size
-                color = "#b58863" if (row + col) % 2 == 0 else "#f0d9b5"
-                
-                # Highlight selected square
-                if self.selected_square is not None and chess.square(col, row) == self.selected_square:
-                    color = "#ffff00"  # Yellow for selected
-                
-                # Highlight legal moves
-                square = chess.square(col, row)
-                if square in self.legal_moves:
-                    color = "#00ff00"  # Green for legal moves
-                
+        for display_row in range(self.board_spec.rows):
+            for display_col in range(self.board_spec.cols):
+                board_row, board_col = self._display_to_board(display_row, display_col)
+                x1 = display_col * self.square_size
+                y1 = display_row * self.square_size
+                x2 = x1 + self.square_size
+                y2 = y1 + self.square_size
+                color = "#b58863" if (board_row + board_col) % 2 == 0 else "#f0d9b5"
+
+                if self.selected_square == (board_row, board_col):
+                    color = "#ffff00"
+                if (board_row, board_col) in self.legal_moves:
+                    color = "#00ff00"
+
                 self.canvas.create_rectangle(x1, y1, x2, y2, fill=color)
 
-                # Draw piece
-                piece = self.board.piece_at(square)
-                if piece:
-                    img = self.piece_images[piece.symbol()]
-                    self.canvas.create_image(x1 + square_size//2, y1 + square_size//2,
-                                           image=img, anchor="center")
+                piece_symbol = self.board_spec.piece_symbol_at(self.board, board_row, board_col)
+                if piece_symbol:
+                    self.canvas.create_image(
+                        x1 + self.square_size // 2,
+                        y1 + self.square_size // 2,
+                        image=self.piece_images[piece_symbol],
+                        anchor="center",
+                    )
 
     def update_status(self):
-        if self.board.is_checkmate():
-            winner = "White" if self.board.turn == chess.BLACK else "Black"
-            self.status_label.config(text=f"Checkmate! {winner} wins.")
-        elif self.board.is_stalemate():
-            self.status_label.config(text="Stalemate! Draw.")
-        elif self.board.is_insufficient_material():
-            self.status_label.config(text="Draw by insufficient material.")
-        elif self.board.is_check():
-            turn = "White" if self.board.turn == chess.WHITE else "Black"
-            self.status_label.config(text=f"{turn} is in check.")
-        else:
-            turn = "White" if self.board.turn == chess.WHITE else "Black"
-            self.status_label.config(text=f"{turn} to move.")
+        self.status_label.config(text=self.board_spec.status_text(self.board))
 
     def on_click(self, event):
-        square_size = 50
-        col = event.x // square_size
-        if self.flip:
-            row = event.y // square_size
-        else:
-            row = 7 - (event.y // square_size)
-        square = chess.square(col, row)
+        display_col = event.x // self.square_size
+        display_row = event.y // self.square_size
+        if display_col < 0 or display_col >= self.board_spec.cols or display_row < 0 or display_row >= self.board_spec.rows:
+            return
+        row, col = self._display_to_board(display_row, display_col)
 
-        # Only allow human moves when it's their turn
-        human_turn = (self.board.turn == chess.WHITE and self.human_color == 'white') or \
-                     (self.board.turn == chess.BLACK and self.human_color == 'black')
-
-        if not human_turn:
+        if not self._is_human_turn():
             return
 
         if self.selected_square is None:
-            # Select piece
-            piece = self.board.piece_at(square)
-            if piece and piece.color == self.board.turn:
-                self.selected_square = square
-                self.legal_moves = [move.to_square for move in self.board.legal_moves if move.from_square == square]
+            legal_moves = self.board_spec.legal_moves_from(self.board, row, col)
+            if legal_moves:
+                self.selected_square = (row, col)
+                self.legal_moves = legal_moves
                 self.draw_board()
+            return
+
+        move = self.legal_moves.get((row, col))
+        self.selected_square = None
+        self.legal_moves = {}
+        if move is not None:
+            self.make_move(move)
         else:
-            # Try to move
-            if square in self.legal_moves:
-                move = chess.Move(self.selected_square, square)
-                # Check for promotion
-                if self.board.piece_at(self.selected_square).piece_type == chess.PAWN and (chess.square_rank(square) == 0 or chess.square_rank(square) == 7):
-                    # Auto promote to queen for simplicity
-                    move = chess.Move(self.selected_square, square, promotion=chess.QUEEN)
-                self.make_move(move)
-            self.selected_square = None
-            self.legal_moves = []
             self.draw_board()
 
     def make_move(self, move):
-        self.board.push(move)
-        self.history = [self.board.copy()] + self.history[:6]
+        self.board_spec.apply_move_inplace(self.board, move)
+        if self.board_spec.is_standard:
+            self.history = [self.board_spec.copy_board(self.board)] + self.history[:6]
+        else:
+            self.history = []
         self.update_status()
-        
-        # Clear any highlights
         self.selected_square = None
-        self.legal_moves = []
+        self.legal_moves = {}
         self.draw_board()
-        
-        # Check if AI should move
-        ai_turn = (self.board.turn == chess.WHITE and self.ai_color == 'white') or \
-                  (self.board.turn == chess.BLACK and self.ai_color == 'black')
-        if ai_turn and self.ai_callback and not self.board.is_game_over():
-            self.status_label.config(text="AI is thinking...")
-            self.root.update()
-            # For simplicity, call AI synchronously (may freeze GUI)
-            game_state = self.create_game_state()
-            ai_move = self.ai_callback(game_state)
-            self.board.push(ai_move)
-            self.history = [self.board.copy()] + self.history[:6]
-            self.update_status()
-            self.draw_board()
+
+        if self._is_ai_turn() and not self.board_spec.is_game_over(self.board):
+            self._make_ai_move()
 
     def create_game_state(self):
-        from utils.game_utils import GameState
-        return GameState(self.board, self.history)
+        return GameState(self.board, self.history, self.board_spec)
 
     def update_board(self, board):
         self.board = board
@@ -171,3 +128,29 @@ class ChessGUI:
 
     def run(self):
         self.root.mainloop()
+
+    def _is_human_turn(self):
+        return self._turn_color() == self.human_color
+
+    def _is_ai_turn(self):
+        return self.ai_callback is not None and self._turn_color() == self.ai_color
+
+    def _make_ai_move(self):
+        self.status_label.config(text="AI is thinking...")
+        self.root.update()
+        ai_move = self.ai_callback(self.create_game_state())
+        self.board_spec.apply_move_inplace(self.board, ai_move)
+        if self.board_spec.is_standard:
+            self.history = [self.board_spec.copy_board(self.board)] + self.history[:6]
+        else:
+            self.history = []
+        self.update_status()
+        self.draw_board()
+
+    def _turn_color(self):
+        return "white" if self.board_spec.turn_is_white(self.board) else "black"
+
+    def _display_to_board(self, display_row, display_col):
+        if self.flip:
+            return self.board_spec.rows - 1 - display_row, self.board_spec.cols - 1 - display_col
+        return display_row, display_col

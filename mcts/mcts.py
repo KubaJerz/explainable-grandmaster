@@ -9,8 +9,10 @@ from utils.game_utils import make_output_valid, is_terminal, terminal_state_eval
 
 
 class MCTSNode:
-    def __init__(self, game_state, policy_len=4672):
+    def __init__(self, game_state, policy_len=None):
         self.game_state = game_state  # GameState (board + history)
+        if policy_len is None:
+            policy_len = game_state.board_spec.policy_size
         self.prior_probs = torch.zeros(policy_len)
         self.W = torch.zeros(policy_len)
         self.visit_counts = torch.zeros(policy_len)
@@ -22,7 +24,7 @@ class MCTSNode:
         return self.W / torch.clamp(self.visit_counts, min=1.0)
 
     def set_prior_probs(self, priors):
-        priors = make_output_valid(priors, self.game_state.board)
+        priors = make_output_valid(priors, self.game_state.board, self.game_state.board_spec)
         self.prior_probs = priors
 
 

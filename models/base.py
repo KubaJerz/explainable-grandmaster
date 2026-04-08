@@ -22,11 +22,14 @@ class ResNetBlock(nn.Module):
         return out
 
 class BaseModel(nn.Module):
-    def __init__(self, input_channels, num_res_blocks=5, num_channels=128):
+    def __init__(self, input_channels, board_shape=(8, 8), policy_size=4672, num_res_blocks=5, num_channels=128):
         super(BaseModel, self).__init__()
         self.input_channels = input_channels
+        self.board_shape = board_shape
+        self.policy_size = policy_size
         self.num_res_blocks = num_res_blocks
         self.num_channels = num_channels
+        board_area = board_shape[0] * board_shape[1]
 
         self.stem = nn.Sequential(
             nn.Conv2d(input_channels, num_channels, kernel_size=3, padding=1),
@@ -40,17 +43,14 @@ class BaseModel(nn.Module):
             nn.BatchNorm2d(2),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(2 * 8 * 8, 8 * 8 * 73)) # where 73 = (8 * 7) {for ever square the nubmer of possible NON-Knight moves * number of possible sqaures to movve 1-7}
-                                             # + 8 {for every square the number of possible knight moves}
-                                             # + (3 * 3) {for every square the number the move to get an underpromotion and then the choice of possible underpromotions to queen, rook, bishop}
-                                             #  NOTE: this inefficiently encodes the underpromotions but hwo alpha zero does it .
+            nn.Linear(2 * board_area, policy_size))
 
         self.value_head = nn.Sequential(
             nn.Conv2d(num_channels, 1, kernel_size=1),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(1 * 8 * 8, num_channels),
+            nn.Linear(board_area, num_channels),
             nn.ReLU(),
             nn.Linear(num_channels, 1),
             nn.Tanh()
