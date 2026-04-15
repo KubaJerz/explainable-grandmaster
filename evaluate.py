@@ -90,7 +90,7 @@ def main():
     parser.add_argument("--skill-level", type=int, default=None, help="Stockfish Skill Level 0-20 (overrides --elo)")
     parser.add_argument("--num-games", type=int, default=10, help="Total games to play")
     parser.add_argument("--mcts-sims", type=int, default=50, help="MCTS simulations per move")
-    parser.add_argument("--c-puct", type=float, default=1.0, help="Exploration constant")
+    parser.add_argument("--c-puct", type=float, default=1.4, help="Exploration constant")
     parser.add_argument("--time-limit", type=float, default=0.1, help="Stockfish time per move (seconds)")
     parser.add_argument("--pgn-dir", type=str, default="results/games", help="Directory to save PGN files")
     args = parser.parse_args()

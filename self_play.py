@@ -9,7 +9,7 @@ from utils.game_utils import GameState, index_to_move, is_terminal
 MAX_MOVES = 512
 
 
-def play_game(evaluate_fn, mcts_sims=800, c_puct=1.0, tau_threshold=30,
+def play_game(evaluate_fn, mcts_sims=800, c_puct=1.4, tau_threshold=8,
               playout_cap_fraction=0.25, full_search_prob=0.25, board_spec=None):
     """Play a single self-play game using MCTS, returning training data."""
     board_spec = board_spec or get_board_spec()
@@ -52,7 +52,7 @@ def play_game(evaluate_fn, mcts_sims=800, c_puct=1.0, tau_threshold=30,
     return training_data
 
 
-def generate_games(evaluate_fn, num_games, mcts_sims=800, c_puct=1.0, tau_threshold=30, board_spec=None):
+def generate_games(evaluate_fn, num_games, mcts_sims=800, c_puct=1.4, tau_threshold=8, board_spec=None):
     """Generate multiple self-play games and collect all training samples."""
     board_spec = board_spec or get_board_spec()
     all_samples = []

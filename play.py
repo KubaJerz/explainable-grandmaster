@@ -124,7 +124,7 @@ def main():
     parser.add_argument("--model", type=str, required=True, help="Path to model checkpoint")
     parser.add_argument("--mode", choices=["local", "remote"], required=True, help="Play mode")
     parser.add_argument("--mcts-sims", type=int, default=150, help="MCTS simulations per move")
-    parser.add_argument("--c-puct", type=float, default=1.0, help="MCTS exploration constant")
+    parser.add_argument("--c-puct", type=float, default=1.4, help="MCTS exploration constant")
     parser.add_argument("--token", type=str, default="")
     parser.add_argument("--human-color", choices=["white", "black"], default="white", help="Human player's color in local mode")
     args = parser.parse_args()

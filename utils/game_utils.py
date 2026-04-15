@@ -16,12 +16,8 @@ class GameState:
         self.history = history or []
 
     def apply_move(self, move):
-        if self.board_spec.is_standard:
-            new_history = [self.board_spec.copy_board(self.board)] + self.history[:6]
-        else:
-            new_history = []
         new_board = self.board_spec.apply_move_copy(self.board, move)
-        return GameState(new_board, new_history, self.board_spec)
+        return GameState(new_board, [], self.board_spec)
 
     def encode(self):
         return self.board_spec.encode(self.board, self.history)

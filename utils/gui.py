@@ -105,10 +105,7 @@ class ChessGUI:
 
     def make_move(self, move):
         self.board_spec.apply_move_inplace(self.board, move)
-        if self.board_spec.is_standard:
-            self.history = [self.board_spec.copy_board(self.board)] + self.history[:6]
-        else:
-            self.history = []
+        self.history = []
         self.update_status()
         self.selected_square = None
         self.legal_moves = {}
@@ -140,10 +137,7 @@ class ChessGUI:
         self.root.update()
         ai_move = self.ai_callback(self.create_game_state())
         self.board_spec.apply_move_inplace(self.board, ai_move)
-        if self.board_spec.is_standard:
-            self.history = [self.board_spec.copy_board(self.board)] + self.history[:6]
-        else:
-            self.history = []
+        self.history = []
         self.update_status()
         self.draw_board()
 

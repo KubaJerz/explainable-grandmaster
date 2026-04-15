@@ -39,7 +39,7 @@ MINICHESS_ROOT = REPO_ROOT / "minichess"
 BOARDS_DIR = MINICHESS_ROOT / "boards"
 MAGICS_DIR = MINICHESS_ROOT / "chess" / "magics"
 
-STANDARD_INPUT_CHANNELS = 119
+STANDARD_INPUT_CHANNELS = 19
 STANDARD_POLICY_SIZE = 4672
 STANDARD_PIECE_ORDER = [
     chess.PAWN,
@@ -411,25 +411,30 @@ def _load_or_create_magics(dims):
 def _standard_board_to_tensor(board, history=None):
     tensor = torch.zeros(STANDARD_INPUT_CHANNELS, 8, 8, dtype=torch.float32)
 
-    boards = [board] + (history or [])
-    boards = boards[:8]
     current_color = board.turn
 
-    for t, hist_board in enumerate(boards):
-        offset = t * 14
-        _encode_standard_pieces(tensor, offset, hist_board, current_color)
-        if hist_board.is_repetition(1):
-            tensor[offset + 12] = 1.0
-        if hist_board.is_repetition(2):
-            tensor[offset + 13] = 1.0
+    # Channels 0-11: piece planes for current board only
+    _encode_standard_pieces(tensor, 0, board, current_color)
 
-    tensor[112] = 1.0 if current_color == chess.WHITE else 0.0
-    tensor[113] = 1.0 if board.has_kingside_castling_rights(chess.WHITE) else 0.0
-    tensor[114] = 1.0 if board.has_queenside_castling_rights(chess.WHITE) else 0.0
-    tensor[115] = 1.0 if board.has_kingside_castling_rights(chess.BLACK) else 0.0
-    tensor[116] = 1.0 if board.has_queenside_castling_rights(chess.BLACK) else 0.0
-    tensor[117] = board.fullmove_number
-    tensor[118] = board.halfmove_clock
+    # Channels 12-15: castling rights
+    tensor[12] = 1.0 if board.has_kingside_castling_rights(chess.WHITE) else 0.0
+    tensor[13] = 1.0 if board.has_queenside_castling_rights(chess.WHITE) else 0.0
+    tensor[14] = 1.0 if board.has_kingside_castling_rights(chess.BLACK) else 0.0
+    tensor[15] = 1.0 if board.has_queenside_castling_rights(chess.BLACK) else 0.0
+
+    # Channel 16: en passant square
+    if board.ep_square is not None:
+        row, col = divmod(board.ep_square, 8)
+        if current_color == chess.BLACK:
+            row = 7 - row
+        tensor[16][row][col] = 1.0
+
+    # Channel 17: halfmove clock (normalized)
+    tensor[17] = board.halfmove_clock / 20.0
+
+    # Channel 18: turn indicator
+    tensor[18] = 1.0 if current_color == chess.WHITE else 0.0
+
     return tensor
 
 

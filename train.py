@@ -38,7 +38,7 @@ they also not have L2 regularizationin the paper we do viz weight decay in the o
 """
 
 
-def train(model, samples, epochs=5, batch_size=64, lr=1e-3, weight_decay=1e-4,
+def train(model, samples, epochs=5, batch_size=128, lr=1e-3, weight_decay=1e-4,
           device="cpu", decisive_weight=1.0):
     """Train the model on self-play data using AlphaZero loss.
 

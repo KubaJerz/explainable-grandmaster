@@ -314,17 +314,17 @@ def main():
     parser.add_argument("--min-samples", type=int, default=2048,
                         help="New samples required before each training iteration")
     parser.add_argument("--mcts-sims", type=int, default=150)
-    parser.add_argument("--epochs", type=int, default=3)
-    parser.add_argument("--batch-size", type=int, default=64)
+    parser.add_argument("--epochs", type=int, default=1)
+    parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
-    parser.add_argument("--num-res-blocks", type=int, default=5)
-    parser.add_argument("--num-channels", type=int, default=128)
-    parser.add_argument("--c-puct", type=float, default=1.0)
+    parser.add_argument("--num-res-blocks", type=int, default=3)
+    parser.add_argument("--num-channels", type=int, default=32)
+    parser.add_argument("--c-puct", type=float, default=1.4)
     parser.add_argument("--results-dir", type=str, default="results/")
     parser.add_argument("--decisive-weight", type=float, default=3.0,
                         help="Sampling weight for decisive (non-draw) training samples")
-    parser.add_argument("--buffer-size", type=int, default=50000,
+    parser.add_argument("--buffer-size", type=int, default=30000,
                         help="Replay buffer capacity (FIFO)")
     parser.add_argument("--resume", type=str, default=None,
                         help="Path to checkpoint to resume from")

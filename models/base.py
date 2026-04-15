@@ -22,7 +22,7 @@ class ResNetBlock(nn.Module):
         return out
 
 class BaseModel(nn.Module):
-    def __init__(self, input_channels, board_shape=(8, 8), policy_size=4672, num_res_blocks=5, num_channels=128):
+    def __init__(self, input_channels, board_shape=(8, 8), policy_size=4672, num_res_blocks=3, num_channels=32):
         super(BaseModel, self).__init__()
         self.input_channels = input_channels
         self.board_shape = board_shape

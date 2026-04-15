@@ -34,7 +34,7 @@ class MCTS:
     Initialize at the node from which to run the search, then call mcts_search
     to perform the search and get the best action.
     """
-    def __init__(self, evaluate_fn, c_puct=1.0, tau=1.0, dirichlet_alpha=0.3, dirichlet_epsilon=0.25):
+    def __init__(self, evaluate_fn, c_puct=1.4, tau=1.0, dirichlet_alpha=0.3, dirichlet_epsilon=0.25):
         self.evaluate_fn = evaluate_fn
         self.c_puct = c_puct
         self.tau = tau
