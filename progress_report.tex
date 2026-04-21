@@ -1,0 +1,186 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage[margin=1.5in]{geometry}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{booktabs}
+
+\title{CSCE 775: Deep Reinforcement Learning and Search \\
+{\textbf{\large Progress Report: Explainable Grandmaster}}}
+\author{Matthew Grenier and Kuba Jerzmanowski}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:introduction}
+
+The objective of this project is twofold. First, we aim to implement a version of the AlphaZero \cite{silver2017mastering} algorithm for chess within the constraints of our available computational resources. Second, we will interpret AlphaZero's learned state value through the generation of chessboard piece-square tables that linearly approximate what the neural network has learned. Current works, principally that of McGrath \emph{et al.} \cite{mcgrath2022acquisition}, utilize complex matrix decompositions to provide insight into AlphaZero's learned behavior. While this method is effective and admittedly more accurate, it does not provide much insight to the layperson concerning what AlphaZero learns. By utilizing gradient descent and backpropagation to learn piece-square tables of individual pieces directly from AlphaZero's value network, we aim to add to the growing work around explainability of the learned representation by the state value function \cite{DBLP:journals/corr/ZahavyBM16}, making the `logic' behind the agent's evaluations more accessible.
+
+Since our project proposal, we have completed a full implementation of the AlphaZero self-play reinforcement learning pipeline and conducted multiple training experiments over the course of several weeks. We have iterated on model architecture, training infrastructure, and self-play strategy in an effort to produce a model of sufficient playing strength for the explainability phase. However, despite sustained engineering effort and the adoption of training acceleration techniques from KataGo \cite{wu2019accelerating}, we have not yet achieved competitive play against even the weakest Stockfish configurations. In this report, we describe the progression of our experiments, diagnose the failure modes we encountered, and outline a revised plan to reach our explainability goals.
+
+\section{Related Work}
+\label{sec:related}
+
+Our project builds directly on the AlphaZero algorithm by Silver \emph{et al.} \cite{silver2017mastering}, which demonstrated that a neural network trained purely through self-play reinforcement learning and Monte Carlo Tree Search (MCTS) could achieve superhuman performance in chess, shogi, and Go. However, AlphaZero required thousands of TPUs for self-play and dozens of GPUs for training---resources far beyond our budget. Klein \cite{Klein2022} provided a practical guide for implementing neural networks for chess, including the 119-plane input representation and 4,672-dimensional policy output encoding that we adopt in our implementation. Wu \cite{wu2019accelerating} introduced several techniques in KataGo that achieved 50$\times$ faster training than the original AlphaZero for Go, including playout cap randomization, policy target pruning, and auxiliary training targets; we adopt the first two of these techniques in our later experiments to improve training efficiency under constrained compute. On the explainability side, McGrath \emph{et al.} \cite{mcgrath2022acquisition} analyzed AlphaZero's internal representations using probing classifiers and concept-level analysis, revealing that the network acquires human-like chess concepts during training. Our work differs by aiming to produce simpler, more accessible explanations through learned piece-square tables rather than complex decomposition methods, following the spirit of earlier work by Zahavy \emph{et al.} \cite{DBLP:journals/corr/ZahavyBM16} on grounding deep reinforcement learning in interpretable representations.
+
+\section{Approach}
+\label{sec:approach}
+
+\subsection{Architecture and Training Pipeline}
+
+We implemented the AlphaZero architecture as described by Silver \emph{et al.} \cite{silver2017mastering}, using the input and output encoding scheme from Klein \cite{Klein2022}. The neural network is a ResNet consisting of a convolutional stem followed by $N$ residual blocks, with dual output heads: a policy head producing 4,672 logits (64 source squares $\times$ 73 move types) and a value head producing a scalar evaluation in $[-1, 1]$ via $\tanh$. The input representation encodes the current board state plus seven steps of history as a 119-plane $8 \times 8$ tensor, capturing piece positions, repetition counts, castling rights, en passant status, the side to move, and the move counter. MCTS guides action selection using the neural network's policy output as a prior and its value output for leaf evaluation, with UCT selection controlled by a $c_{\text{puct}}$ exploration constant. The training pipeline repeats a loop of self-play data generation, accumulation into a fixed-size replay buffer, and network training with the AlphaZero loss (cross-entropy on policy plus MSE on value, with L2 regularization via Adam weight decay).
+
+\subsection{Experiment A: True-to-Paper AlphaZero}
+
+Our initial experiment aimed to be as faithful to the original AlphaZero paper as our hardware would allow. We used a large model with 19 residual blocks and 256 channels ($\sim$23.3M parameters), matching the depth and width described by Silver \emph{et al.} \cite{silver2017mastering}. Self-play was conducted with 150 MCTS simulations per move. We quickly observed that the value head collapsed: the value loss dropped to approximately 0.005 within the first 50 iterations and remained there for the duration of training, as shown in \cref{tab:expa}. Average game lengths ballooned from 96 moves at iteration 0 to over 300 moves by iteration 100, as the model learned to predict near-zero values for all positions, effectively declaring every game a draw and rendering MCTS useless. Approximately 85\% of self-play games ended in draws by repetition or the fifty-move rule, starving the training process of decisive game signal.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\linewidth]{draw_screenshot.png}
+    \caption{Terminal output from Experiment A self-play, illustrating the dominance of drawn games. The value head's collapse to near-zero predictions resulted in aimless play that rarely produced decisive outcomes.}
+    \label{fig:draws}
+\end{figure}
+
+To address the draw-dominated replay buffer, we introduced a \texttt{draw\_keep\_ratio} of 0.25, discarding 75\% of \textit{draw} game samples to oversample decisive outcomes. We also transitioned from sequential self-play to a parallelized architecture: CPU workers ran self-play in separate processes while a dedicated inference server batched board evaluations for the GPU, substantially increasing game throughput; however the speed gains were offset due discating 75\% of games that ended in a draw. Under this scheme, self-play ran continuously, and training was triggered every 2,048 new tuples in the replay buffer for five epochs of gradient updates. We trained this configuration for approximately five days (606 iterations), yet the model never achieved meaningful play. As shown in \cref{tab:expa}, the policy loss plateaued around 0.45 and the value loss remained near 0.02. We evaluated the model against Stockfish at ELO 1350 at six checkpoints throughout training, losing all 24 games. We further evaluated against Stockfish at Skill Level 0 (its weakest setting) and lost all 10 games. \Cref{fig:expa_game} shows a representative game in which the model, despite 606 iterations of training, plays incoherent moves such as 1.\ g3, Na3, and Rb2, losing to Stockfish Skill Level 0 in 21 moves.
+
+\begin{table}[h]
+\centering
+\caption{Training metrics for Experiment A (19 res blocks, 256 channels, 23.3M parameters, 150 MCTS simulations). The value loss collapsed to near-zero by iteration 50, indicating the model learned to predict draws for all positions. Average game lengths exceeding 200 moves reflect aimless play.}
+\label{tab:expa}
+\begin{tabular}{@{}rcccc@{}}
+\toprule
+Iteration & Total Loss & Policy Loss & Value Loss & Avg.\ Game Length \\
+\midrule
+0   & 7.851 & 7.203 & 0.648 & 95.8 \\
+50  & 0.319 & 0.312 & 0.007 & 223.6 \\
+100 & 0.259 & 0.254 & 0.005 & 307.6 \\
+200 & 0.447 & 0.427 & 0.020 & 162.4 \\
+300 & 0.450 & 0.429 & 0.022 & 194.6 \\
+400 & 0.483 & 0.459 & 0.023 & 199.2 \\
+500 & 0.449 & 0.428 & 0.020 & 153.4 \\
+605 & 0.481 & 0.460 & 0.021 & 120.7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\linewidth]{results/old02/loss_plot.png}
+    \caption{Training loss for Experiment A over 606 iterations. The loss drops sharply in the first 50 iterations but then plateaus and even rises slightly, suggesting the model was not meaningfully improving beyond its initial rapid memorization of draw-like policies.}
+    \label{fig:expa_loss}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \fbox{\parbox{0.85\linewidth}{\small
+    \textbf{Experiment A, Iteration 605 vs.\ Stockfish Skill Level 0:}\\[4pt]
+    1.\ g3 e6 \quad 2.\ Na3 e5 \quad 3.\ d3 d5 \quad 4.\ c3 c5 \quad 5.\ b3 Be7 \quad 6.\ Rb1 Be6 \quad 7.\ Bg2 Qd7 \quad 8.\ Rb2 Nf6 \quad 9.\ Bd2 c4 \quad 10.\ Qc1 Bxa3 \quad 11.\ Be4 dxe4 \quad 12.\ Bf4 Nc6 \quad 13.\ Bxe5 e3 \quad 14.\ Rc2 exf2+ \quad 15.\ Kxf2 Bc5+ \quad 16.\ Bd4 Ng4+ \quad 17.\ Kf3 Bxd4 \quad 18.\ a3 Nce5+ \quad 19.\ Kf4 g5+ \quad 20.\ Kxg5 Qd5 \quad 21.\ Qb2 Ng6\# \quad \textbf{0--1}
+    }}
+    \caption{A representative game from Experiment A (iteration 605) playing as White against Stockfish at Skill Level 0. Despite 606 iterations of self-play training, the model opens with 1.\ g3 and 2.\ Na3, develops its rook to b2 before completing development, and is checkmated in 21 moves by the weakest Stockfish configuration.}
+    \label{fig:expa_game}
+\end{figure}
+
+We diagnosed two root causes for the failure. First, the large model ($\sim$23.3M parameters) was severely overfit relative to the volume of training data a single GPU could generate: each iteration produced only $\sim$2,048 training samples, and the 50,000-sample replay buffer could not provide sufficient diversity for a model of this capacity. Second, the slow inference speed of the large model meant fewer MCTS simulations per unit of wall-clock time, compounding the data scarcity problem.
+
+\subsection{Experiment B: Smaller Model with KataGo Acceleration}
+
+In response to the failures of Experiment A, we made several significant changes. We reduced the model to 5 residual blocks with 128 channels ($\sim$2.2M parameters), a roughly 10$\times$ reduction in parameter count, to better match the volume of data we could generate. We kept 150 MCTS simulations per move as the full search budget while introducing playout cap randomization (see below). We also adopted two training acceleration techniques from KataGo \cite{wu2019accelerating}:
+
+\begin{itemize}
+    \item \textbf{Playout cap randomization:} 75\% of turns receive only 25\% of the full MCTS simulation budget, while the remaining 25\% of turns receive the full budget. Only the full-search turns produce policy training targets, ensuring that the policy network trains on high-quality search distributions while the value network still benefits from all game outcomes. This reduces the average computation per game allowing for more games improving value head training.
+    \item \textbf{Policy target pruning:} Dirichlet exploration noise is applied at the root during MCTS to encourage exploration \cite{silver2017mastering}, but the visits induced by this noise are subtracted from the visit counts before computing policy training targets\cite{wu2019accelerating}. This prevents the policy network from learning to imitate forced exploration, yielding cleaner training signal.
+\end{itemize}
+
+Additionally, we replaced the draw-discard heuristic from Experiment A with a \texttt{decisive\_weight} of 3.0, which oversamples decisive (non-draw) game positions during training without discarding data entirely. Self-play was parallelized across 40 CPU worker processes communicating with a single batched GPU inference server. We trained this configuration for approximately 14 days (337 hours), completing 853 iterations and roughly 37,800 self-play games yielding $\sim$1.77M training samples.
+
+\section{Experimental Results}
+\label{sec:results}
+
+\Cref{tab:expb} summarizes the training progression for Experiment B. The total loss dropped rapidly from 6.40 to below 1.0 within the first 50 iterations, with continued gradual improvement to a best value of 0.616 around iteration 308 before stabilizing in the 0.75--0.80 range for the remainder of training. The policy loss accounts for the vast majority of the total loss and follows the same downward trajectory, while the value loss converged quickly to approximately 0.06 and remained stable---notably higher than the near-zero value loss in Experiment A, suggesting the value head is no longer collapsing to a trivial draw prediction. Average game lengths increased from 34 moves at iteration 0 to roughly 43--51 moves through the rest of training, indicating that the model learned to avoid the very earliest blunders and sustain somewhat longer, more coherent games. \Cref{fig:expb_loss} shows the full training loss curve.
+
+\begin{table}[h]
+\centering
+\caption{Training metrics for Experiment B (5 res blocks, 128 channels, 2.2M parameters, 150 MCTS simulations with playout cap randomization) over 853 iterations of self-play and training. Each iteration generates $\sim$2,048 training samples from 40 parallel self-play workers.}
+\label{tab:expb}
+\begin{tabular}{@{}rcccc@{}}
+\toprule
+Iteration & Total Loss & Policy Loss & Value Loss & Avg.\ Game Length \\
+\midrule
+0   & 6.396 & 5.656 & 0.739 & 34.2 \\
+50  & 0.919 & 0.858 & 0.062 & 54.9 \\
+100 & 0.853 & 0.791 & 0.062 & 45.2 \\
+200 & 0.817 & 0.760 & 0.057 & 48.8 \\
+300 & 0.798 & 0.734 & 0.064 & 42.0 \\
+400 & 0.756 & 0.700 & 0.056 & 43.5 \\
+500 & 0.778 & 0.720 & 0.059 & 45.5 \\
+600 & 0.793 & 0.733 & 0.060 & 51.2 \\
+700 & 0.795 & 0.734 & 0.061 & 47.0 \\
+800 & 0.796 & 0.735 & 0.060 & 47.1 \\
+853 & 0.801 & 0.742 & 0.059 & 43.2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\linewidth]{results/loss_plot.png}
+    \caption{Training loss for Experiment B over 853 iterations. Compared to Experiment A (\cref{fig:expa_loss}), the loss is higher in absolute terms but continues to decrease through the first $\sim$300 iterations rather than collapsing, and the value loss remains meaningfully above zero throughout.}
+    \label{fig:expb_loss}
+\end{figure}
+
+Despite the improving loss, the model has not yet achieved competitive play. We evaluated the model against Stockfish at ELO 1350 at multiple checkpoints throughout training, playing four games per evaluation (two as White, two as Black). The model lost all evaluation games. While early checkpoints played incoherent openings and were mated within a handful of moves, later checkpoints showed qualitative improvement---developing some pieces and surviving longer into the middlegame before losing tactically. \Cref{fig:expb_game} shows a game from the latest evaluation (iteration 853) in which the model, though still losing, sustains play for 32 moves before being checkmated.
+
+\begin{figure}[h]
+    \centering
+    \fbox{\parbox{0.85\linewidth}{\small
+    \textbf{Experiment B, Iteration 853 vs.\ Stockfish ELO 1350:}\\[4pt]
+    1.\ g4 d5 \quad 2.\ a4 c6 \quad 3.\ h4 e5 \quad 4.\ Ra2 Bxg4 \quad 5.\ Nf3 Bd6 \quad 6.\ Ng5 h6 \quad 7.\ c4 hxg5 \quad 8.\ c5 Be7 \quad 9.\ d3 gxh4 \quad 10.\ e4 Qc8 \quad 11.\ Ra3 Bxd1 \quad 12.\ b3 Bf3 \quad 13.\ exd5 Bxh1 \quad 14.\ d4 Qd8 \quad 15.\ dxe5 Qxd5 \quad 16.\ Bd3 Qxe5+ \quad 17.\ Be2 Qc7 \quad 18.\ Be3 Nd7 \quad 19.\ f3 Bg2 \quad 20.\ Bc1 Bxc5 \quad 21.\ Kd1 Nb6 \quad 22.\ Bd3 Bxf3+ \quad 23.\ Kc2 h3 \quad 24.\ Kb2 O-O-O \quad 25.\ Kc3 Qe5+ \quad 26.\ Kc2 Qe1 \quad 27.\ Bf5+ Rd7 \quad 28.\ Bf4 Kd8 \quad 29.\ Bxh3 Be4+ \quad 30.\ Kb2 Nc4+ \quad 31.\ bxc4 Qxb1+ \quad 32.\ Kc3 Bb4\# \quad \textbf{0--1}
+    }}
+    \caption{A game from Experiment B (iteration 853) playing as White against Stockfish ELO 1350. The model still opens with 1.\ g4, an uncommon and generally weak first move, but sustains 32 moves of play---grabbing material with the bishop excursion to h1 before being mated by a coordinated queen-and-bishop attack on the queenside.}
+    \label{fig:expb_game}
+\end{figure}
+
+The gap between decreasing self-play loss and poor competitive performance is consistent with a known limitation of pure self-play: the loss measures consistency with the model's own MCTS-improved policy, not absolute playing strength. Because the model only plays against itself, it can converge to internally consistent but objectively weak strategies. \Cref{tab:comparison} summarizes the key differences between our two experiments.
+
+\begin{table}[h]
+\centering
+\caption{Comparison of Experiment A and Experiment B. Despite substantial improvements in training infrastructure and model sizing, neither experiment produced competitive play against Stockfish.}
+\label{tab:comparison}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+ & Experiment A & Experiment B \\
+\midrule
+Residual blocks & 19 & 5 \\
+Channels & 256 & 128 \\
+Parameters & 23.3M & 2.2M \\
+MCTS simulations & 150 & 150 (w/ playout cap) \\
+KataGo techniques & None & Playout cap, target pruning \\
+Training duration & $\sim$5 days & $\sim$14 days \\
+Iterations & 606 & 853 \\
+Final policy loss & 0.460 & 0.742 \\
+Final value loss & 0.021 & 0.059 \\
+Value head collapse & Yes & No \\
+Wins vs.\ Stockfish & 0/34 & 0/28 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Future Milestones}
+\label{sec:milestones}
+
+Given the difficulty of training a competitive chess engine on standard $8 \times 8$ chess with a single GPU, we plan to pivot to a smaller chess variant to reduce the state space and allow the model to learn meaningful play within our compute budget. Our revised timeline is as follows:
+
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+
+
+\bibliographystyle{splncs04}
+\bibliography{references}
+
+\end{document}

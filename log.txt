@@ -1,0 +1,1023 @@
+Process Process-14:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-9:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-6:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-4:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-15:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-1:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-2:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-16:
+Process Process-3:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-8:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-7:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-17:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-10:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-5:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-18:
+Process Process-12:
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-11:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-22:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-21:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-13:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-19:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-31:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-23:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-28:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-20:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-27:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-34:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-29:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-39:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-24:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-25:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-30:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-36:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-32:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-33:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-26:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-35:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-38:
+Process Process-40:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Process Process-37:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 170, in self_play_worker
+    samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, board_spec=board_spec)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/self_play.py", line 22, in play_game
+    while not is_terminal(game_state.board, game_state.board_spec) and move_num < MAX_MOVES:
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/game_utils.py", line 55, in is_terminal
+    return active_spec.is_terminal(board)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/utils/board_utils.py", line 197, in is_terminal
+    return board.game_result() is not None
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 123, in game_result
+    self.legal_moves()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 537, in legal_moves
+    king_danger_squares = self.get_attacked_squares(inv_color(self.turn), True)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 347, in get_attacked_squares
+    attacked |= self.diagonal_move_magic(all_pieces, i, j)
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 173, in diagonal_move_magic
+    return self.move_magic(all_pieces & self.DIAGONAL_MOVES[i, j], i, j, self.diagonal_magics, self.diagonal_hash_table, self.diagonal_magic_shift) & self.DIAGONAL_MOVES[i, j]
+  File "/home/kuba/Documents/classes/explainable-grandmaster/minichess/chess/fastchess.py", line 162, in move_magic
+    return hash_table[i, j, index]
+IndexError: index 4324 is out of bounds for axis 2 with size 256
+Resumed from results/model_iter_37.pt (starting at iteration 38, buffer: 5186 samples)
+Device: cuda
+Config: {'board': '5x4silverman', 'iterations': 9000, 'num_workers': 40, 'min_samples': 2048, 'mcts_sims': 500, 'epochs': 3, 'batch_size': 64, 'lr': 0.001, 'weight_decay': 0.0001, 'num_res_blocks': 5, 'num_channels': 128, 'c_puct': 1.0, 'results_dir': 'results/', 'decisive_weight': 3.0, 'buffer_size': 50000, 'resume': 'results/model_iter_37.pt', 'inference_batch_size': 256, 'max_wait_ms': 5.0}
+Model params: 1,544,062
+Starting 40 self-play worker processes with batched inference (batch_size=256, max_wait=5.0ms)
+Traceback (most recent call last):
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 445, in <module>
+    main()
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 428, in main
+    trainer_loop(replay_buffer, results_queue, server, train_model, args,
+  File "/home/kuba/Documents/classes/explainable-grandmaster/run_parallel.py", line 191, in trainer_loop
+    worker_id, game_len, samples_data = results_queue.get(timeout=1.0)
+  File "/usr/lib/python3.10/multiprocessing/queues.py", line 113, in get
+    if not self._poll(timeout):
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 257, in poll
+    return self._poll(timeout)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 424, in _poll
+    r = wait([self], timeout)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 931, in wait
+    ready = selector.select(timeout)
+  File "/usr/lib/python3.10/selectors.py", line 416, in select
+    fd_event_list = self._selector.poll(timeout)
+KeyboardInterrupt

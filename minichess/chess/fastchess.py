@@ -158,7 +158,8 @@ class Chess:
         """
         magic = magic_table[i, j]
 
-        return hash_table[i, j, (occupants * magic) >> np.uint64(64 - shift)]
+        index = ((int(occupants) * int(magic)) & 0xFFFFFFFFFFFFFFFF) >> (64 - shift)
+        return hash_table[i, j, index]
 
     def diagonal_move_magic(self, all_pieces: np.uint64, i: np.uint8, j: np.uint8):
         """
@@ -357,7 +358,7 @@ class Chess:
 
     def bit_pos(self, board: np.uint64):
         """Finds location (i, j) of first 1 in the bitboard."""
-        ind = int(board & -board).bit_length() - 1
+        ind = (int(board) & -int(board)).bit_length() - 1
         return unflat(ind, self.dims)
 
     def piece_at(self, i: np.uint8, j: np.uint8, turn: bool):

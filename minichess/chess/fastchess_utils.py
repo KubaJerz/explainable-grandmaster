@@ -63,13 +63,12 @@ def load_board(board_setup_path="minichess/boards/8x8standard"):
 
 def flat(i, j, dims):
     # Flattens a (i, j)-tuple into a flattened index
-    # Also takes "dims" as a deprecated parameter. TODO: remove this
-    return np.uint64(8 * i + j)
+    return np.uint64(dims[1] * i + j)
 
 @njit
 def unflat(f, dims):
-    # Bad name, but translates a flattened index to its corresponding (i, j)-coordinate tuple
-    return int(f // 8), int(f % 8)
+    # Translates a flattened index to its corresponding (i, j)-coordinate tuple
+    return int(f // dims[1]), int(f % dims[1])
 
 
 def set_bit(bitboard, bit):
@@ -418,7 +417,7 @@ def uci_move_to_native_move(uci_move, board):
 
 
 def more_than_one_bit_set(board):
-    return board & (board - B_1) != 0
+    return int(board) & (int(board) - 1) != 0
 
 
 def bit_count(board):
