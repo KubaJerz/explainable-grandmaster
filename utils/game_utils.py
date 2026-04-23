@@ -123,5 +123,14 @@ def terminal_state_evaluation(board):
     return -1.0
 
 
+def terminal_state_evaluation_large(board, win_value=100000.0):
+    result = board.result(claim_draw=True)
+    if result == "1/2-1/2":
+        return 0.0
+    if (result == "1-0" and board.turn) or (result == "0-1" and not board.turn):
+        return float(win_value)
+    return float(-win_value)
+
+
 def initial_game_state():
     return GameState(Board())
