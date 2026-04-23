@@ -32,8 +32,8 @@ class ChessGUI:
             image = image.resize((70, 70), Image.LANCZOS)
             self.piece_images[piece_symbol] = ImageTk.PhotoImage(image)
 
-        canvas_width = BOARD_WIDTH * self.square_size
-        canvas_height = BOARD_HEIGHT * self.square_size
+        canvas_width = BOARD_HEIGHT * self.square_size
+        canvas_height = BOARD_WIDTH * self.square_size
         self.canvas = tk.Canvas(self.root, width=canvas_width, height=canvas_height)
         self.canvas.pack()
         self.canvas.bind("<Button-1>", self.on_click)
@@ -46,20 +46,31 @@ class ChessGUI:
         if self._is_ai_turn() and self.ai_callback:
             self._perform_ai_move()
 
-    def _display_file(self, file_index):
-        return BOARD_WIDTH - 1 - file_index if self.flip else file_index
+    def _square_to_display(self, file_index, rank_index):
+        if self.flip:
+            display_col = rank_index
+            display_row = file_index
+        else:
+            display_col = BOARD_HEIGHT - 1 - rank_index
+            display_row = BOARD_WIDTH - 1 - file_index
+        return display_col, display_row
 
-    def _display_rank(self, rank_index):
-        return BOARD_HEIGHT - 1 - rank_index
+    def _display_to_square(self, display_col, display_row):
+        if self.flip:
+            file_index = display_row
+            rank_index = display_col
+        else:
+            file_index = BOARD_WIDTH - 1 - display_row
+            rank_index = BOARD_HEIGHT - 1 - display_col
+        return file_index, rank_index
 
     def draw_board(self):
         self.canvas.delete("all")
         for rank_index in range(BOARD_HEIGHT):
             for file_index in range(BOARD_WIDTH):
-                display_file = self._display_file(file_index)
-                display_rank = self._display_rank(rank_index)
-                x1 = display_file * self.square_size
-                y1 = display_rank * self.square_size
+                display_col, display_row = self._square_to_display(file_index, rank_index)
+                x1 = display_col * self.square_size
+                y1 = display_row * self.square_size
                 x2 = x1 + self.square_size
                 y2 = y1 + self.square_size
                 color = "#b58863" if (file_index + rank_index) % 2 == 0 else "#f0d9b5"
@@ -100,13 +111,12 @@ class ChessGUI:
         if not self._is_human_turn():
             return
 
-        file_index = event.x // self.square_size
-        rank_from_top = event.y // self.square_size
-        if not (0 <= file_index < BOARD_WIDTH and 0 <= rank_from_top < BOARD_HEIGHT):
+        display_col = event.x // self.square_size
+        display_row = event.y // self.square_size
+        if not (0 <= display_col < BOARD_HEIGHT and 0 <= display_row < BOARD_WIDTH):
             return
 
-        board_file = BOARD_WIDTH - 1 - file_index if self.flip else file_index
-        board_rank = BOARD_HEIGHT - 1 - rank_from_top
+        board_file, board_rank = self._display_to_square(display_col, display_row)
         clicked_square = square(board_file, board_rank)
 
         if self.selected_square is None:
