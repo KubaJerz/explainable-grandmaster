@@ -26,10 +26,10 @@ def play_game(evaluate_fn, mcts_sims=800, c_puct=1.0, tau_threshold=30,
         full_search_prob: probability of a turn getting full search
 
     Returns:
-        list of (state_tensor, policy_target, value_target) tuples
+        list of (state_tensor, policy_target, value_target, policy_weight) tuples
     """
     game_state = initial_game_state()
-    trajectory = []  # (tensor, mcts_policy_or_None, side_to_move)
+    trajectory = []  # (tensor, mcts_policy, side_to_move, has_policy_target)
 
     capped_sims = max(1, int(mcts_sims * playout_cap_fraction))
 
@@ -42,24 +42,27 @@ def play_game(evaluate_fn, mcts_sims=800, c_puct=1.0, tau_threshold=30,
         is_full_search = random.random() < full_search_prob
         sims = mcts_sims if is_full_search else capped_sims
 
-        #run the mcts
+        # Run the MCTS
         mcts = MCTS(evaluate_fn, c_puct=c_puct, tau=tau)
         action = mcts.mcts_search(game_state, sims)
 
-        # Policy target only from full-search turns (with noise pruning)
-        mcts_policy = mcts.get_policy(prune_noise_visits=True) if is_full_search else None
+        # Only full-search turns train the policy head.
+        if is_full_search:
+            mcts_policy = mcts.get_policy(prune_noise_visits=True)
+        else:
+            mcts_policy = torch.zeros_like(mcts.root.visit_counts)
 
-        # Store position data to use for training later
+        # Store position data to use for training later.
         state_tensor = game_state.encode()
         side = game_state.board.turn
-        trajectory.append((state_tensor, mcts_policy, side))
+        trajectory.append((state_tensor, mcts_policy, side, is_full_search))
 
-        # apply the chosen action
+        # Apply the chosen action.
         move = index_to_move(action, game_state.board)
         game_state = game_state.apply_move(move)
         move_num += 1
 
-    # Determine game result from white's perspective
+    # Determine game result from white's perspective.
     if is_terminal(game_state.board):
         result = game_state.board.result()
         if result == "1-0":
@@ -69,18 +72,20 @@ def play_game(evaluate_fn, mcts_sims=800, c_puct=1.0, tau_threshold=30,
         else:
             z_white = 0.0
     else:
-        # Hit move cap — adjudicate as draw
+        # Hit move cap - adjudicate as draw.
         z_white = 0.0
 
-    # value targets "z" from each position's side-to-move perspective given the outcome of the game
-    # Policy targets only from full-search turns (playout cap randomization);
-    # capped turns still contribute value targets.
+    # All turns contribute value targets. Only full-search turns contribute
+    # policy loss through a nonzero policy weight.
     training_data = []
-    for state_tensor, mcts_policy, side in trajectory:
-        if mcts_policy is None:
-            continue  # capped turn — no policy target, skip entirely
+    for state_tensor, mcts_policy, side, has_policy_target in trajectory:
         value_target = z_white if side == WHITE else -z_white
-        training_data.append((state_tensor, mcts_policy, torch.tensor(value_target, dtype=torch.float32)))
+        training_data.append((
+            state_tensor,
+            mcts_policy,
+            torch.tensor(value_target, dtype=torch.float32),
+            torch.tensor(1.0 if has_policy_target else 0.0, dtype=torch.float32),
+        ))
 
     return training_data
 
@@ -89,7 +94,7 @@ def generate_games(evaluate_fn, num_games, mcts_sims=800, c_puct=1.0, tau_thresh
     """Generate multiple self-play games and collect all training samples.
 
     Returns:
-        samples: list of (state_tensor, policy_target, value_target)
+        samples: list of (state_tensor, policy_target, value_target, policy_weight)
         stats: dict with game_lengths
     """
     all_samples = []
@@ -100,7 +105,7 @@ def generate_games(evaluate_fn, num_games, mcts_sims=800, c_puct=1.0, tau_thresh
         samples = play_game(evaluate_fn, mcts_sims=mcts_sims, c_puct=c_puct, tau_threshold=tau_threshold)
         game_lengths.append(len(samples))
         all_samples.extend(samples)
-        print(f" — {len(samples)} moves")
+        print(f" - {len(samples)} moves")
 
     stats = {
         "num_games": num_games,

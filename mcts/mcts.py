@@ -70,6 +70,8 @@ class MCTS:
     def select_action_UCT(self, node):
         # UCT Formula (Silver page 355)
         parent_visits = torch.sum(node.visit_counts)
+        if parent_visits.item() == 0:
+            return torch.multinomial(node.prior_probs, 1).item()
         U = self.c_puct * node.prior_probs * (math.sqrt(parent_visits) / (1.0 + node.visit_counts))
 
         action_scores = node.Q + U
@@ -83,9 +85,12 @@ class MCTS:
         new_state = parent_node.game_state.apply_move(move)
         leaf_node = MCTSNode(new_state, len(parent_node.prior_probs))
 
-        tensor = new_state.encode()
-        nn_priors, value = self.evaluate_fn(tensor)
-        leaf_node.set_prior_probs(nn_priors)
+        if is_terminal(new_state.board):
+            value = terminal_state_evaluation(new_state.board)
+        else:
+            tensor = new_state.encode()
+            nn_priors, value = self.evaluate_fn(tensor)
+            leaf_node.set_prior_probs(nn_priors)
         leaf_node.value_sum = value
 
         return leaf_node, leaf_node.value_sum
