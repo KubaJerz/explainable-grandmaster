@@ -165,6 +165,8 @@ class ChessGUI:
         self.draw_board()
 
     def _is_human_turn(self):
+        if self.human_color == "both":
+            return True
         return (self.board.turn == WHITE and self.human_color == "white") or (
             self.board.turn == BLACK and self.human_color == "black"
         )

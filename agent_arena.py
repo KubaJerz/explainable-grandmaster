@@ -156,28 +156,39 @@ def get_alphabeta_n_move(game_state, depth):
 def resolve_agent(spec, color_name, device, mcts_sims, c_puct, alphabeta_depth):
     normalized = spec.strip().lower()
 
+    if normalized == "human":
+        return {
+            "label": f"{color_name} human",
+            "move_fn": None,
+            "is_human": True,
+        }
+
     if normalized in {"alphabeta", "alpha-beta"}:
         return {
             "label": f"{color_name} alpha-beta",
             "move_fn": lambda game_state: get_alphabeta_move(game_state),
+            "is_human": False,
         }
 
     if normalized in {"alphabeta-n", "alpha-beta-n"}:
         return {
             "label": f"{color_name} alpha-beta-{alphabeta_depth}",
             "move_fn": lambda game_state: get_alphabeta_n_move(game_state, alphabeta_depth),
+            "is_human": False,
         }
 
     if normalized == "random":
         return {
             "label": f"{color_name} random",
             "move_fn": lambda game_state: get_random_move(game_state),
+            "is_human": False,
         }
 
     _, model = load_checkpoint(spec, device)
     return {
         "label": f"{color_name} checkpoint",
         "move_fn": lambda game_state, model=model: get_model_move(game_state, model, mcts_sims, c_puct),
+        "is_human": False,
     }
 
 
@@ -189,7 +200,7 @@ def play_arena(
     move_delay_ms=400,
     alphabeta_depth=4,
 ):
-    """Run a GUI game between two agents."""
+    """Run a GUI game between two participants."""
     if alphabeta_depth < 1:
         raise ValueError("--alphabeta-depth must be at least 1")
 
@@ -212,7 +223,27 @@ def play_arena(
         alphabeta_depth,
     )
 
-    gui = ChessGUI(ai_callback=None, human_color="white")
+    if white_agent["is_human"] and black_agent["is_human"]:
+        gui = ChessGUI(ai_callback=None, human_color="both", ai_color="none")
+        gui.root.title("Silverman 5x4 Human Arena")
+        gui.run()
+        return
+
+    if white_agent["is_human"] or black_agent["is_human"]:
+        human_color = "white" if white_agent["is_human"] else "black"
+        ai_color = "black" if human_color == "white" else "white"
+        ai_agent = black_agent if human_color == "white" else white_agent
+
+        gui = ChessGUI(
+            ai_callback=ai_agent["move_fn"],
+            ai_color=ai_color,
+            human_color=human_color,
+        )
+        gui.root.title("Silverman 5x4 Human Arena")
+        gui.run()
+        return
+
+    gui = ChessGUI(ai_callback=None, human_color="white", ai_color="none")
     gui.root.title("Silverman 5x4 Agent Arena")
 
     def step_game():
@@ -236,18 +267,18 @@ def play_arena(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Benchmark two arena agents against each other")
+    parser = argparse.ArgumentParser(description="Run a GUI game between agents and/or a human")
     parser.add_argument(
         "--white-model",
         type=str,
         required=True,
-        help="Checkpoint path, 'random', 'alphabeta', or 'alphabeta-n' for White",
+        help="Checkpoint path, 'human', 'random', 'alphabeta', or 'alphabeta-n' for White",
     )
     parser.add_argument(
         "--black-model",
         type=str,
         required=True,
-        help="Checkpoint path, 'random', 'alphabeta', or 'alphabeta-n' for Black",
+        help="Checkpoint path, 'human', 'random', 'alphabeta', or 'alphabeta-n' for Black",
     )
     parser.add_argument("--mcts-sims", type=int, default=150, help="MCTS simulations per move")
     parser.add_argument("--c-puct", type=float, default=1.0, help="MCTS exploration constant")
