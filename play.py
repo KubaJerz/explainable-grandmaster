@@ -1,18 +1,19 @@
 import argparse
 import torch
-import chess
-import sys
-from pathlib import Path
 
 from models.base import BaseModel
-from utils.game_utils import index_to_move
+from utils.game_utils import INPUT_CHANNELS, index_to_move
 from mcts.mcts import MCTS
 from utils.gui import ChessGUI
 
 def load_model(model_path, device):
     """Load pretrained model from checkpoint."""
     checkpoint = torch.load(model_path, map_location=device, weights_only=False)
-    model = BaseModel(input_channels=119, num_res_blocks=checkpoint['args']['num_res_blocks'])
+    model = BaseModel(
+        input_channels=INPUT_CHANNELS,
+        num_res_blocks=checkpoint["args"]["num_res_blocks"],
+        num_channels=checkpoint["args"].get("num_channels", 128),
+    )
     model.load_state_dict(checkpoint['model_state_dict'])
     model.to(device)
     model.eval()
@@ -24,7 +25,7 @@ def get_ai_move(game_state, model, mcts_sims, c_puct):
     def evaluate_fn(tensor):
         tensor = tensor.unsqueeze(0).to(next(model.parameters()).device)
         p, v = model(tensor)
-        return p.squeeze(0), v.item()
+        return torch.softmax(p.squeeze(0), dim=0), v.item()
     
     mcts = MCTS(evaluate_fn, c_puct=c_puct, tau=0.01)  # Low temperature for best move
     action = mcts.mcts_search(game_state, mcts_sims)

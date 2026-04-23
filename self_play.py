@@ -1,10 +1,10 @@
 import random
 
 import torch
-import chess
 
-from utils.game_utils import GameState, move_to_index, index_to_move, is_terminal, terminal_state_evaluation
+from utils.game_utils import index_to_move, initial_game_state, is_terminal
 from mcts.mcts import MCTS
+from utils.silverman import WHITE
 
 MAX_MOVES = 512
 
@@ -28,7 +28,7 @@ def play_game(evaluate_fn, mcts_sims=800, c_puct=1.0, tau_threshold=30,
     Returns:
         list of (state_tensor, policy_target, value_target) tuples
     """
-    game_state = GameState(chess.Board())
+    game_state = initial_game_state()
     trajectory = []  # (tensor, mcts_policy_or_None, side_to_move)
 
     capped_sims = max(1, int(mcts_sims * playout_cap_fraction))
@@ -51,7 +51,7 @@ def play_game(evaluate_fn, mcts_sims=800, c_puct=1.0, tau_threshold=30,
 
         # Store position data to use for training later
         state_tensor = game_state.encode()
-        side = game_state.board.turn  # chess.WHITE or chess.BLACK
+        side = game_state.board.turn
         trajectory.append((state_tensor, mcts_policy, side))
 
         # apply the chosen action
@@ -79,7 +79,7 @@ def play_game(evaluate_fn, mcts_sims=800, c_puct=1.0, tau_threshold=30,
     for state_tensor, mcts_policy, side in trajectory:
         if mcts_policy is None:
             continue  # capped turn — no policy target, skip entirely
-        value_target = z_white if side == chess.WHITE else -z_white
+        value_target = z_white if side == WHITE else -z_white
         training_data.append((state_tensor, mcts_policy, torch.tensor(value_target, dtype=torch.float32)))
 
     return training_data

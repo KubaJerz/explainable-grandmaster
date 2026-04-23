@@ -1,5 +1,7 @@
 import torch.nn as nn
 
+from utils.game_utils import ACTION_SIZE, BOARD_HEIGHT, BOARD_WIDTH
+
 #res net block for the base model
 class ResNetBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -40,17 +42,14 @@ class BaseModel(nn.Module):
             nn.BatchNorm2d(2),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(2 * 8 * 8, 8 * 8 * 73)) # where 73 = (8 * 7) {for ever square the nubmer of possible NON-Knight moves * number of possible sqaures to movve 1-7}
-                                             # + 8 {for every square the number of possible knight moves}
-                                             # + (3 * 3) {for every square the number the move to get an underpromotion and then the choice of possible underpromotions to queen, rook, bishop}
-                                             #  NOTE: this inefficiently encodes the underpromotions but hwo alpha zero does it .
+            nn.Linear(2 * BOARD_HEIGHT * BOARD_WIDTH, ACTION_SIZE))
 
         self.value_head = nn.Sequential(
             nn.Conv2d(num_channels, 1, kernel_size=1),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(1 * 8 * 8, num_channels),
+            nn.Linear(1 * BOARD_HEIGHT * BOARD_WIDTH, num_channels),
             nn.ReLU(),
             nn.Linear(num_channels, 1),
             nn.Tanh()

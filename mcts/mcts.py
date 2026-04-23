@@ -2,14 +2,14 @@ import math
 
 import torch
 
-from utils.game_utils import make_output_valid, is_terminal, terminal_state_evaluation, index_to_move, GameState
+from utils.game_utils import ACTION_SIZE, GameState, index_to_move, is_terminal, make_output_valid, terminal_state_evaluation
 
 # Dominik Klein Neural Networks for Chess
 # Mastering the game of Go without human knowledge (Silver)
 
 
 class MCTSNode:
-    def __init__(self, game_state, policy_len=4672):
+    def __init__(self, game_state, policy_len=ACTION_SIZE):
         self.game_state = game_state  # GameState (board + history)
         self.prior_probs = torch.zeros(policy_len)
         self.W = torch.zeros(policy_len)
