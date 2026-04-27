@@ -45,6 +45,9 @@ class MCTS:
         tensor = game_state.encode()
         nn_priors, value = self.evaluate_fn(tensor)
 
+        # Capture raw (pre-mask) priors so callers can measure illegal-move predictions.
+        self.root_raw_priors = nn_priors.detach().clone() if hasattr(nn_priors, "detach") else nn_priors.clone()
+
         self.root = MCTSNode(game_state)
         self.root.set_prior_probs(nn_priors)
         self.root.value_sum = value
